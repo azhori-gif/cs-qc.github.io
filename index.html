@@ -38,7 +38,7 @@ td{padding:7px 8px;border-bottom:1px solid #f0f0ee;color:#1a1a1a;vertical-align:
 tr:last-child td{border-bottom:none;}
 .metric-box{display:inline-block;background:#f5f5f3;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1rem;}
 .ml{font-size:12px;color:#888;margin-bottom:2px;}
-.mv{font-size:20px;font-weight:600;color:#1a1a1a;}
+.mv{font-size:18px;font-weight:600;color:#1a1a1a;}
 .empty{text-align:center;color:#bbb;padding:2rem;font-size:13px;}
 .dow-we{color:#a32d2d;}
 .sub-box{border-radius:8px;padding:12px;margin-bottom:12px;display:none;}
@@ -62,6 +62,7 @@ tr:last-child td{border-bottom:none;}
 .irregular-tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;background:#E6F1FB;color:#0C447C;border:1px solid #B5D4F4;margin:2px;}
 .date-selects{display:flex;gap:6px;align-items:center;}
 .date-selects select{width:auto;flex:1;}
+.today-badge{display:inline-block;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;background:#e63946;color:#fff;margin-right:4px;vertical-align:middle;}
 @media(max-width:600px){.wrap{padding:1rem;}}
 </style>
 </head>
@@ -69,9 +70,39 @@ tr:last-child td{border-bottom:none;}
 <div class="wrap">
 <h1>📋 シフト管理ツール</h1>
 
+<!-- 2. 日別稼働人数 -->
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="sec-ttl" style="margin-bottom:0;">📊 日別稼働人数</div>
+      <select id="view-month" onchange="renderSummary()" style="font-size:16px;font-weight:600;padding:6px 10px;width:auto;"></select>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:12px;color:#888;">稼働 <span id="sm-days" style="font-weight:600;color:#1a1a1a;">—</span></span>
+      <span style="font-size:12px;color:#888;">土日祝 <span id="sm-we-days" style="font-weight:600;color:#1a1a1a;">—</span></span>
+      <button onclick="exportCSV()" style="font-size:12px;padding:4px 10px;">↓ CSV</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="min-width:520px;">
+      <thead><tr>
+        <th style="width:66px;">日付</th><th style="width:26px;">曜</th>
+        <th style="width:64px;text-align:right;">稼働人数</th>
+        <th style="width:56px;text-align:right;">土日祝日出勤</th>
+        <th style="width:56px;text-align:right;">振替休日</th>
+        <th style="width:44px;text-align:right;">有給</th>
+        <th style="width:40px;text-align:right;">半休</th>
+        <th>メンバー詳細</th>
+      </tr></thead>
+      <tbody id="summary-body"><tr><td colspan="8" class="empty">対象月を選択すると集計が表示されます</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
 <!-- 1. シフト登録 -->
 <div class="card">
   <div class="sec-ttl" id="form-title">シフト登録</div>
+  <div style="font-size:12px;color:#888;background:#f5f5f3;border-radius:6px;padding:8px 12px;margin-bottom:12px;line-height:1.6;">⚠️ こちらはCS内での稼働人数把握のための管理ツールです。勤怠の手続きについては別途各自でお願いいたします。</div>
   <div id="edit-mode-banner" style="display:none;background:#fff3cd;border:1px solid #f0d060;border-radius:6px;padding:6px 12px;font-size:12px;color:#856404;margin-bottom:8px;">✏️ 修正モード中　<button onclick="cancelEdit()" style="font-size:11px;padding:2px 8px;margin-left:8px;">キャンセル</button></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
     <div class="form-row">
@@ -120,35 +151,6 @@ tr:last-child td{border-bottom:none;}
   <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
     <button onclick="clearForm()">クリア</button>
     <button class="btn-p" id="submit-btn" onclick="submitShift()">＋ 登録</button>
-  </div>
-</div>
-
-<!-- 2. 日別稼働人数 -->
-<div class="card">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-    <div class="sec-ttl" style="margin-bottom:0;">📊 日別稼働人数</div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <select id="view-month" onchange="renderSummary()" style="font-size:12px;padding:4px 8px;width:auto;"></select>
-      <button onclick="exportCSV()" style="font-size:12px;padding:4px 10px;">↓ CSV</button>
-    </div>
-  </div>
-  <div class="metric-box">
-    <div class="ml">稼働日数</div>
-    <div class="mv" id="sm-days">—</div>
-  </div>
-  <div style="overflow-x:auto;">
-    <table style="min-width:520px;">
-      <thead><tr>
-        <th style="width:66px;">日付</th><th style="width:26px;">曜</th>
-        <th style="width:64px;text-align:right;">稼働人数</th>
-        <th style="width:56px;text-align:right;">土日祝日出勤</th>
-        <th style="width:56px;text-align:right;">振替休日</th>
-        <th style="width:44px;text-align:right;">有給</th>
-        <th style="width:40px;text-align:right;">半休</th>
-        <th>メンバー詳細</th>
-      </tr></thead>
-      <tbody id="summary-body"><tr><td colspan="8" class="empty">対象月を選択すると集計が表示されます</td></tr></tbody>
-    </table>
   </div>
 </div>
 
@@ -851,10 +853,10 @@ function renderAll(){updateMonthSelect();renderSummary();renderList();renderMemb
 function renderSummary(){
   const mon=document.getElementById('view-month').value;
   const tbody=document.getElementById('summary-body');
-  if(!mon){tbody.innerHTML='<tr><td colspan="8" class="empty">対象月を選択してください</td></tr>';document.getElementById('sm-days').textContent='—';return;}
+  if(!mon){tbody.innerHTML='<tr><td colspan="8" class="empty">対象月を選択してください</td></tr>';document.getElementById('sm-days').textContent='—';document.getElementById('sm-we-days').textContent='—';return;}
   const[y,m]=mon.split('-').map(Number);
   const days=new Date(y,m,0).getDate();
-  let workDays=0;tbody.innerHTML='';
+  let workDays=0;let weDays=0;tbody.innerHTML='';
   for(let d=1;d<=days;d++){
     const ds=`${mon}-${String(d).padStart(2,'0')}`;
     const dow=new Date(ds).getDay();const isHoliday=COMPANY_HOLIDAYS.includes(ds);const isWe=dow===0||dow===6||isHoliday;
@@ -868,7 +870,7 @@ function renderSummary(){
     const absent=dayShifts.filter(s=>s.type==='absent');
     const absentByShift=[...furikae,...paid,...absent].map(s=>s.member);
     let wc=0;const fixedOffNames=[];
-    if(isWe){wc=weWork.length;}
+    if(isWe){wc=weWork.length;weDays++;}
     else{
       active.forEach(member=>{
         if(absentByShift.includes(member.name))return;
@@ -895,10 +897,13 @@ function renderSummary(){
     if(isHoliday)detail.push('<span style="font-size:11px;color:#854f0b;">🏢 会社休日</span>');
     const cc=isHoliday?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:'<span style="color:#bbb;">会社休</span>'):isWe?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:'<span style="color:#bbb;">—</span>'):`<span style="font-weight:600;">${wc}人</span>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-size:12px;">${ds.slice(5)}</td><td style="font-size:12px;"><span class="${isWe?'dow-we':''}">${DOW_NAMES[dow]}</span></td><td style="text-align:right;">${cc}</td><td style="text-align:right;font-size:12px;">${weWork.length?`<span style="color:#3B6D11;">${weWork.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${furikae.length?`<span style="color:#633806;">${furikae.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${paid.length?`<span style="color:#72243E;">${paid.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${(halfpm.length+halfam.length)?`<span style="color:#3C3489;">${halfpm.length+halfam.length}</span>`:'—'}</td><td style="font-size:12px;">${detail.join(' ')}</td>`;
+    const isToday=ds===new Date().toISOString().slice(0,10);
+    if(isToday)tr.style.cssText='background:#fff8f0;border-left:3px solid #e63946;';
+    tr.innerHTML=`<td style="font-size:12px;">${isToday?'<span class=\'today-badge\'>今日</span>':''}${ds.slice(5)}</td><td style="font-size:12px;"><span class="${isWe?'dow-we':''}">${DOW_NAMES[dow]}</span></td><td style="text-align:right;">${cc}</td><td style="text-align:right;font-size:12px;">${weWork.length?`<span style="color:#3B6D11;">${weWork.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${furikae.length?`<span style="color:#633806;">${furikae.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${paid.length?`<span style="color:#72243E;">${paid.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${(halfpm.length+halfam.length)?`<span style="color:#3C3489;">${halfpm.length+halfam.length}</span>`:'—'}</td><td style="font-size:12px;">${detail.join(' ')}</td>`;
     tbody.appendChild(tr);
   }
   document.getElementById('sm-days').textContent=workDays+'日';
+  document.getElementById('sm-we-days').textContent=weDays+'日';
 }
 
 function renderMembers(){
