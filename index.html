@@ -69,12 +69,6 @@ tr:last-child td{border-bottom:none;}
 <body>
 <div class="wrap">
 <h1>📋 審査メンバー シフト管理ツール</h1>
-<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
-  <button onclick="downloadData()" style="font-size:12px;padding:5px 12px;background:#2c7be5;color:#fff;border:none;border-radius:6px;cursor:pointer;">📥 データをダウンロード</button>
-  <button onclick="uploadData()" style="font-size:12px;padding:5px 12px;background:#fff;color:#2c7be5;border:1px solid #2c7be5;border-radius:6px;cursor:pointer;">📤 データをアップロード</button>
-  <span style="font-size:11px;color:#888;align-self:center;">※GitHubへの更新前にダウンロード、更新後にアップロードしてください</span>
-</div>
-
 <!-- 2. 日別稼働人数 -->
 <div class="card">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
@@ -199,6 +193,11 @@ tr:last-child td{border-bottom:none;}
   </div>
 </div>
 
+<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+  <button onclick="downloadData()" style="font-size:12px;padding:5px 12px;background:#2c7be5;color:#fff;border:none;border-radius:6px;cursor:pointer;">📥 データをダウンロード</button>
+  <button onclick="uploadData()" style="font-size:12px;padding:5px 12px;background:#fff;color:#2c7be5;border:1px solid #2c7be5;border-radius:6px;cursor:pointer;">📤 データをアップロード</button>
+  <span style="font-size:11px;color:#888;align-self:center;">※GitHubへの更新前にダウンロード、更新後にアップロードしてください</span>
+</div>
 <!-- 4. メンバーマスタ -->
 <div class="card">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
