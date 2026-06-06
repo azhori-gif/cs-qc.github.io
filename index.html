@@ -175,7 +175,12 @@ tr:last-child td{border-bottom:none;}
       <button id="shift-list-toggle" onclick="toggleShiftList()" style="font-size:12px;padding:4px 10px;">▲ 閉じる</button>
     </div>
   </div>
-  <div id="shift-list-body-wrap" style="overflow-x:auto;margin-top:1rem;">
+  <div style="margin-top:0.75rem;margin-bottom:0.75rem;">
+    <select id="filter-member" onchange="renderList()" style="font-size:12px;padding:4px 8px;width:auto;">
+      <option value="">すべてのメンバー</option>
+    </select>
+  </div>
+  <div id="shift-list-body-wrap" style="overflow-x:auto;">
     <table style="min-width:500px;">
       <thead><tr>
         <th style="width:72px;">日付</th><th style="width:26px;">曜</th>
@@ -667,6 +672,16 @@ function addShift(){
     if(originDate){const od=new Date(originDate).getDay();if(od!==0&&od!==6){document.getElementById('origin-err').classList.add('show');return;}}
   }
   shifts.push({id:Date.now(),date,member,type,note,originDate});
+  // 振替休日で振替元が土日の場合、土日出勤を自動登録
+  if(type==='furikae'&&originDate){
+    const od=new Date(originDate).getDay();
+    if(od===0||od===6){
+      const alreadyExists=shifts.find(s=>s.date===originDate&&s.member===member&&s.type==='we');
+      if(!alreadyExists){
+        shifts.push({id:Date.now()+1,date:originDate,member,type:'we',note:'（振替休日登録から自動追加）',originDate:''});
+      }
+    }
+  }
   shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.member.localeCompare(b.member));
   save();renderAll();
   document.getElementById('f-note').value='';
@@ -845,10 +860,19 @@ function renderMembers(){
 
 function renderList(){
   const tbody=document.getElementById('shift-list-body');
-  document.getElementById('entry-count').textContent=shifts.length+'件';
-  if(!shifts.length){tbody.innerHTML='<tr><td colspan="7" class="empty">まだ登録がありません</td></tr>';return;}
+  // メンバープルダウンを更新
+  const filterSel=document.getElementById('filter-member');
+  const curFilter=filterSel.value;
+  filterSel.innerHTML='<option value="">すべてのメンバー</option>';
+  [...new Set(shifts.map(s=>s.member))].sort().forEach(name=>{
+    const o=document.createElement('option');o.value=name;o.textContent=name;filterSel.appendChild(o);
+  });
+  if(curFilter)filterSel.value=curFilter;
+  const filtered=curFilter?shifts.filter(s=>s.member===curFilter):shifts;
+  document.getElementById('entry-count').textContent=(curFilter?filtered.length+'/'+shifts.length:shifts.length)+'件';
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="7" class="empty">'+(shifts.length?'該当するデータがありません':'まだ登録がありません')+'</td></tr>';return;}
   tbody.innerHTML='';
-  [...shifts].forEach(s=>{
+  [...filtered].forEach(s=>{
     const dow=new Date(s.date).getDay();const isWe=dow===0||dow===6;
     let oc='<span style="color:#bbb;">—</span>';
     if(s.type==='furikae'||s.type==='halfam'||s.type==='halfpm'){
