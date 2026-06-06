@@ -69,6 +69,11 @@ tr:last-child td{border-bottom:none;}
 <body>
 <div class="wrap">
 <h1>📋 審査メンバー シフト管理ツール</h1>
+<div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+  <button onclick="downloadData()" style="font-size:12px;padding:5px 12px;background:#2c7be5;color:#fff;border:none;border-radius:6px;cursor:pointer;">📥 データをダウンロード</button>
+  <button onclick="uploadData()" style="font-size:12px;padding:5px 12px;background:#fff;color:#2c7be5;border:1px solid #2c7be5;border-radius:6px;cursor:pointer;">📤 データをアップロード</button>
+  <span style="font-size:11px;color:#888;align-self:center;">※GitHubへの更新前にダウンロード、更新後にアップロードしてください</span>
+</div>
 
 <!-- 2. 日別稼働人数 -->
 <div class="card">
@@ -869,17 +874,19 @@ function toggleThuSection(){
 }
 
 // 木曜日以外の出社データ
-const INITIAL_OTHER_DATES=['2026-06-17','2026-07-15'];
+const INITIAL_OTHER_DATES=['2026-06-17','2026-07-01','2026-07-15'];
 const INITIAL_OTHER_ENTRIES=[
   {date:'2026-06-17',member:'小池圭太'},
   {date:'2026-06-17',member:'堀川梓'},
+  {date:'2026-07-01',member:'小池圭太'},
+  {date:'2026-07-01',member:'内田友里絵'},
   {date:'2026-07-15',member:'小池圭太'},
   {date:'2026-07-15',member:'堀川梓'},
   {date:'2026-07-15',member:'内田友里絵'},
 ];
-let otherOfficeDates=(function(){try{const s=localStorage.getItem('otherDates-v1');if(s)return JSON.parse(s);}catch(e){}return [...INITIAL_OTHER_DATES];})();
-let otherOfficeEntries=(function(){try{const s=localStorage.getItem('otherEntries-v1');if(s)return JSON.parse(s);}catch(e){}return [...INITIAL_OTHER_ENTRIES];})();
-function saveOtherData(){try{localStorage.setItem('otherDates-v1',JSON.stringify(otherOfficeDates));localStorage.setItem('otherEntries-v1',JSON.stringify(otherOfficeEntries));}catch(e){}}
+let otherOfficeDates=(function(){try{const s=localStorage.getItem('otherDates-v2');if(s)return JSON.parse(s);}catch(e){}return [...INITIAL_OTHER_DATES];})();
+let otherOfficeEntries=(function(){try{const s=localStorage.getItem('otherEntries-v2');if(s)return JSON.parse(s);}catch(e){}return [...INITIAL_OTHER_ENTRIES];})();
+function saveOtherData(){try{localStorage.setItem('otherDates-v2',JSON.stringify(otherOfficeDates));localStorage.setItem('otherEntries-v2',JSON.stringify(otherOfficeEntries));}catch(e){}}
 function addOtherDate(){const val=document.getElementById('new-other-date').value;if(!val)return;if(!otherOfficeDates.includes(val)){otherOfficeDates.push(val);otherOfficeDates.sort();saveOtherData();}document.getElementById('new-other-date').value='';renderOfficeSchedule();}
 function addOtherEntry(ds){const member=document.getElementById('other-member-'+ds).value;if(!member)return;if(!otherOfficeEntries.find(e=>e.date===ds&&e.member===member)){otherOfficeEntries.push({date:ds,member});saveOtherData();}renderOfficeSchedule();}
 
@@ -1247,6 +1254,50 @@ function renderList(){
     tr.innerHTML=`<td style="font-size:12px;">${s.date.slice(5)}</td><td style="font-size:12px;"><span class="${isWe?'dow-we':''}">${DOW_NAMES[dow]}</span></td><td style="font-weight:600;font-size:13px;">${s.member}</td><td><span class="badge ${(BCLS[s.type]||'b-paid')}">${(LABELS[s.type]||s.type)}</span></td><td>${oc}</td><td style="font-size:12px;color:#888;">${s.note||''}</td><td style="text-align:center;white-space:nowrap;"><button onclick="editShift(${s.id})" style="padding:2px 6px;font-size:11px;background:#4a90d9;color:#fff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;">修正</button> <button class="btn-danger" onclick="removeShift(${s.id})" style="padding:2px 6px;font-size:11px;white-space:nowrap;">削除</button></td>`;
     tbody.appendChild(tr);
   });
+}
+
+function downloadData(){
+  const data={
+    shifts,
+    members:MEMBERS,
+    officeChanges,
+    otherOfficeDates,
+    otherOfficeEntries,
+    exportedAt:new Date().toISOString()
+  };
+  const json=JSON.stringify(data,null,2);
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(json);
+  a.download='shiftdata_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+function uploadData(){
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='.json';
+  input.onchange=function(e){
+    const file=e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        const data=JSON.parse(ev.target.result);
+        if(data.shifts)shifts=data.shifts;
+        if(data.members)MEMBERS.splice(0,MEMBERS.length,...data.members);
+        if(data.officeChanges)officeChanges=data.officeChanges;
+        if(data.otherOfficeDates)otherOfficeDates=data.otherOfficeDates;
+        if(data.otherOfficeEntries)otherOfficeEntries=data.otherOfficeEntries;
+        save();
+        saveOtherData();
+        saveOfficeChanges();
+        renderAll();
+        alert('データを読み込みました！');
+      }catch(err){alert('ファイルの読み込みに失敗しました。正しいJSONファイルを選んでください。');}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
 }
 
 function exportCSV(){
