@@ -952,11 +952,11 @@ function renderOfficeSchedule(){
 
   // 木曜日セクション
   const thuSection=document.createElement('div');
-  thuSection.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #eee;"><span style="font-size:13px;font-weight:600;color:#555;">📅 木曜日</span><button id="thu-toggle-btn" onclick="toggleThuSection()" style="font-size:12px;padding:3px 10px;">▼ 開く</button></div>';
+  thuSection.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #eee;"><span style="font-size:13px;font-weight:600;color:#555;">📅 木曜日</span><button id="thu-toggle-btn" onclick="toggleThuSection()" style="font-size:12px;padding:3px 10px;">▲ 閉じる</button></div>';
   container.appendChild(thuSection);
   const thuBody=document.createElement('div');
   thuBody.id='thu-body-wrap';
-  thuBody.style.display='none';
+  thuBody.style.display='';
 
   let showPastThu=false;
   let showFutureThu=false;
@@ -966,32 +966,33 @@ function renderOfficeSchedule(){
   sevenDaysLater.setDate(sevenDaysLater.getDate()+7);
   const sevenDaysLaterStr=sevenDaysLater.toISOString().slice(0,10);
 
-  const pastThuBtn=document.createElement('button');
-  pastThuBtn.style.cssText='font-size:12px;padding:3px 10px;margin-left:8px;';
-  pastThuBtn.textContent='📅 過去の出社も表示';
-  thuSection.querySelector('div').appendChild(pastThuBtn);
-
-  const futureThuBtn=document.createElement('button');
-  futureThuBtn.style.cssText='font-size:12px;padding:3px 10px;margin-left:4px;';
-  futureThuBtn.textContent='📅 未来の出社も表示';
-  thuSection.querySelector('div').appendChild(futureThuBtn);
-
   function renderThuRows(){
     thuBody.innerHTML='';
+    // 過去・未来ボタンをthuBody内に追加
+    const btnRow=document.createElement('div');
+    btnRow.style.cssText='display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;';
+    const pastThuBtn=document.createElement('button');
+    pastThuBtn.style.cssText='font-size:12px;padding:3px 10px;';
+    pastThuBtn.textContent=showPastThu?'📅 過去を非表示':'📅 過去の出社も表示';
+    pastThuBtn.onclick=function(){showPastThu=!showPastThu;renderThuRows();};
+    const futureThuBtn=document.createElement('button');
+    futureThuBtn.style.cssText='font-size:12px;padding:3px 10px;';
+    futureThuBtn.textContent=showFutureThu?'📅 未来を非表示':'📅 未来の出社も表示';
+    futureThuBtn.onclick=function(){showFutureThu=!showFutureThu;renderThuRows();};
+    btnRow.appendChild(pastThuBtn);
+    btnRow.appendChild(futureThuBtn);
+    thuBody.appendChild(btnRow);
     // 常に表示：今日〜7日以内
     // 過去ボタンON：過去分も追加
     // 未来ボタンON：8日以上先も追加
-    const filtered=thursdays.filter(d=>{
-      const isPast=d<todayStrThu;
-      const isNear=d>=todayStrThu&&d<=sevenDaysLaterStr;
-      const isFar=d>sevenDaysLaterStr;
-      if(isNear)return true;
-      if(isPast&&showPastThu)return true;
-      if(isFar&&showFutureThu)return true;
-      return false;
-    });
-    pastThuBtn.textContent=showPastThu?'📅 過去を非表示':'📅 過去の出社も表示';
-    futureThuBtn.textContent=showFutureThu?'📅 未来を非表示':'📅 未来の出社も表示';
+    // 今日以降の直近1件を取得
+    const upcomingThu=thursdays.filter(d=>d>=todayStrThu);
+    const nearestThu=upcomingThu.slice(0,1);
+    const filtered=[
+      ...(showPastThu?thursdays.filter(d=>d<todayStrThu):[]),
+      ...nearestThu,
+      ...(showFutureThu?thursdays.filter(d=>upcomingThu.indexOf(d)>0):[]),
+    ];
     filtered.forEach(ds=>{
       const isToday=ds===todayStrThu;
     const dayShifts=shifts.filter(s=>s.date===ds);
@@ -1045,8 +1046,7 @@ function renderOfficeSchedule(){
         thuBody.appendChild(row);
     });
   }
-  pastThuBtn.onclick=function(){showPastThu=!showPastThu;renderThuRows();};
-  futureThuBtn.onclick=function(){showFutureThu=!showFutureThu;renderThuRows();};
+
   renderThuRows();
   thuSection.appendChild(thuBody);
 
@@ -1090,29 +1090,29 @@ function renderOfficeSchedule(){
   sevenDaysLaterOther.setDate(sevenDaysLaterOther.getDate()+7);
   const sevenDaysLaterStrOther=sevenDaysLaterOther.toISOString().slice(0,10);
 
-  const pastOtherBtn=document.createElement('button');
-  pastOtherBtn.style.cssText='font-size:12px;padding:3px 10px;margin-left:8px;';
-  pastOtherBtn.textContent='📅 過去の出社も表示';
-  otherHeader.appendChild(pastOtherBtn);
-
-  const futureOtherBtn=document.createElement('button');
-  futureOtherBtn.style.cssText='font-size:12px;padding:3px 10px;margin-left:4px;';
-  futureOtherBtn.textContent='📅 未来の出社も表示';
-  otherHeader.appendChild(futureOtherBtn);
-
   function renderOtherRows(){
     otherBody.innerHTML='';
-    const filteredOther=otherOfficeDates.filter(d=>{
-      const isPast=d<todayStrOther;
-      const isNear=d>=todayStrOther&&d<=sevenDaysLaterStrOther;
-      const isFar=d>sevenDaysLaterStrOther;
-      if(isNear)return true;
-      if(isPast&&showPastOther)return true;
-      if(isFar&&showFutureOther)return true;
-      return false;
-    });
+    const btnRowOther=document.createElement('div');
+    btnRowOther.style.cssText='display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;';
+    const pastOtherBtn=document.createElement('button');
+    pastOtherBtn.style.cssText='font-size:12px;padding:3px 10px;';
     pastOtherBtn.textContent=showPastOther?'📅 過去を非表示':'📅 過去の出社も表示';
+    pastOtherBtn.onclick=function(){showPastOther=!showPastOther;renderOtherRows();};
+    const futureOtherBtn=document.createElement('button');
+    futureOtherBtn.style.cssText='font-size:12px;padding:3px 10px;';
     futureOtherBtn.textContent=showFutureOther?'📅 未来を非表示':'📅 未来の出社も表示';
+    futureOtherBtn.onclick=function(){showFutureOther=!showFutureOther;renderOtherRows();};
+    btnRowOther.appendChild(pastOtherBtn);
+    btnRowOther.appendChild(futureOtherBtn);
+    otherBody.appendChild(btnRowOther);
+    // 今日以降の直近1件を取得
+    const upcomingOther=otherOfficeDates.filter(d=>d>=todayStrOther);
+    const nearestOther=upcomingOther.slice(0,1);
+    const filteredOther=[
+      ...(showPastOther?otherOfficeDates.filter(d=>d<todayStrOther):[]),
+      ...nearestOther,
+      ...(showFutureOther?otherOfficeDates.filter(d=>upcomingOther.indexOf(d)>0):[]),
+    ];
     filteredOther.forEach(ds=>{
       const isToday=ds===todayStrOther;
     const dow=new Date(ds).getDay();
@@ -1138,8 +1138,6 @@ function renderOfficeSchedule(){
       otherBody.appendChild(row);
     });
   }
-  pastOtherBtn.onclick=function(){showPastOther=!showPastOther;renderOtherRows();};
-  futureOtherBtn.onclick=function(){showFutureOther=!showFutureOther;renderOtherRows();};
   renderOtherRows();
   otherSection.appendChild(otherBody);
   container.appendChild(otherSection);
