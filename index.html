@@ -1084,16 +1084,35 @@ function renderOfficeSchedule(){
 
   // 各日付の行
   let showPastOther=false;
+  let showFutureOther=false;
+  const todayStrOther=today.toISOString().slice(0,10);
+  const sevenDaysLaterOther=new Date(today);
+  sevenDaysLaterOther.setDate(sevenDaysLaterOther.getDate()+7);
+  const sevenDaysLaterStrOther=sevenDaysLaterOther.toISOString().slice(0,10);
+
   const pastOtherBtn=document.createElement('button');
   pastOtherBtn.style.cssText='font-size:12px;padding:3px 10px;margin-left:8px;';
   pastOtherBtn.textContent='📅 過去の出社も表示';
   otherHeader.appendChild(pastOtherBtn);
 
-  const todayStrOther=today.toISOString().slice(0,10);
+  const futureOtherBtn=document.createElement('button');
+  futureOtherBtn.style.cssText='font-size:12px;padding:3px 10px;margin-left:4px;';
+  futureOtherBtn.textContent='📅 未来の出社も表示';
+  otherHeader.appendChild(futureOtherBtn);
+
   function renderOtherRows(){
     otherBody.innerHTML='';
-    const filteredOther=showPastOther?otherOfficeDates:otherOfficeDates.filter(d=>d>=todayStrOther);
+    const filteredOther=otherOfficeDates.filter(d=>{
+      const isPast=d<todayStrOther;
+      const isNear=d>=todayStrOther&&d<=sevenDaysLaterStrOther;
+      const isFar=d>sevenDaysLaterStrOther;
+      if(isNear)return true;
+      if(isPast&&showPastOther)return true;
+      if(isFar&&showFutureOther)return true;
+      return false;
+    });
     pastOtherBtn.textContent=showPastOther?'📅 過去を非表示':'📅 過去の出社も表示';
+    futureOtherBtn.textContent=showFutureOther?'📅 未来を非表示':'📅 未来の出社も表示';
     filteredOther.forEach(ds=>{
       const isToday=ds===todayStrOther;
     const dow=new Date(ds).getDay();
@@ -1120,6 +1139,7 @@ function renderOfficeSchedule(){
     });
   }
   pastOtherBtn.onclick=function(){showPastOther=!showPastOther;renderOtherRows();};
+  futureOtherBtn.onclick=function(){showFutureOther=!showFutureOther;renderOtherRows();};
   renderOtherRows();
   otherSection.appendChild(otherBody);
   container.appendChild(otherSection);
