@@ -1351,6 +1351,8 @@ function importNotionCSV(){
           if(/^\d{4}-\d{2}-\d{2}$/.test(str))return str;
           return '';
         }
+        // Notion→HTML名前変換マッピング
+        const nameMap={'梓 堀川':'堀川梓','武末 夏海':'武末夏海','mai.kitabori@paytner.co.jp':'北堀麻衣'};
         // 種別マッピング
         const typeMap={'有給休暇':'paid','休暇':'paid','午前休':'halfam','午後休':'halfpm','振替休日':'furikae','土日出勤':'we','土日祝日出勤':'we','欠勤':'absent','時短':'halfpm'};
         let added=0,skipped=0,errors=0;
@@ -1358,7 +1360,7 @@ function importNotionCSV(){
         for(let i=1;i<lines.length;i++){
           const cols=lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
           if(cols.length<3)continue;
-          const member=cols[userIdx]||'';
+          const member=nameMap[cols[userIdx]]||(cols[userIdx]||'');
           const dateRaw=cols[dateIdx]||'';
           const typeRaw=cols[typeIdx]||'';
           const note=noteIdx>=0?(cols[noteIdx]||''):'';
