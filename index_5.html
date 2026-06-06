@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シフト管理ツール</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;font-size:14px;line-height:1.6;color:#1a1a1a;background:#f5f5f3;}
+.wrap{max-width:960px;margin:0 auto;padding:1.5rem;}
+h1{font-size:18px;font-weight:600;margin-bottom:1.5rem;color:#1a1a1a;}
+.card{background:#fff;border:1px solid #e8e8e5;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1rem;}
+.sec-ttl{font-size:15px;font-weight:600;margin-bottom:1rem;color:#1a1a1a;}
+.form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.form-row label{font-size:12px;color:#888;}
+select,input[type=text]{border:1px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;width:100%;background:#fff;color:#1a1a1a;font-family:inherit;}
+select:focus,input:focus{outline:none;box-shadow:0 0 0 2px #b5d4f4;}
+button{border:1px solid #ddd;border-radius:8px;padding:7px 16px;font-size:13px;background:#fff;color:#1a1a1a;cursor:pointer;font-family:inherit;}
+button:hover{background:#f5f5f3;}
+button:active{transform:scale(0.98);}
+.btn-p{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.btn-p:hover{background:#333;}
+.btn-sm{padding:3px 10px;font-size:12px;}
+.btn-danger{border-color:#e09090;color:#a32d2d;}
+.btn-danger:hover{background:#fcebeb;}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;white-space:nowrap;}
+.b-we{background:#EAF3DE;color:#3B6D11;}
+.b-furikae{background:#FAEEDA;color:#633806;}
+.b-paid{background:#FBEAF0;color:#72243E;}
+.b-halfpm{background:#EEEDFE;color:#3C3489;}
+.b-halfam{background:#E1F5EE;color:#085041;}
+.b-fixoff{background:#F1EFE8;color:#444;font-size:10px;padding:1px 5px;}
+.b-absent{background:#FEE2E2;color:#991B1B;}
+.b-new{background:#EAF3DE;color:#3B6D11;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:middle;}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+th{text-align:left;font-weight:500;font-size:12px;color:#888;padding:8px;border-bottom:1px solid #e8e8e5;}
+td{padding:7px 8px;border-bottom:1px solid #f0f0ee;color:#1a1a1a;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.metric-box{display:inline-block;background:#f5f5f3;border-radius:8px;padding:0.75rem 1.25rem;margin-bottom:1rem;}
+.ml{font-size:12px;color:#888;margin-bottom:2px;}
+.mv{font-size:18px;font-weight:600;color:#1a1a1a;}
+.empty{text-align:center;color:#bbb;padding:2rem;font-size:13px;}
+.dow-we{color:#a32d2d;}
+.sub-box{border-radius:8px;padding:12px;margin-bottom:12px;display:none;}
+.sub-box.show{display:block;}
+.origin-box{background:#f5f5f3;}
+.we-warn-box{background:#fef3cd;border:1px solid #f0d060;}
+.err-hint{font-size:12px;color:#a32d2d;margin-top:6px;display:none;}
+.err-hint.show{display:block;}
+.tag-link{font-size:11px;color:#888;margin-left:4px;}
+.member-row-new td{background:#f5fcf0;}
+.dow-pill{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;margin:2px;background:#f5f5f3;border:1px solid #e0e0dd;color:#888;}
+.dow-pill.off{background:#FCEBEB;color:#A32D2D;border-color:#F09595;}
+.day-check-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.day-lbl{font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;padding:5px 10px;border:1px solid #ddd;border-radius:8px;color:#1a1a1a;user-select:none;}
+.day-lbl.selected-off{background:#FCEBEB;color:#A32D2D;border-color:#F09595;}
+.checkbox-row{display:flex;align-items:flex-start;gap:8px;margin-top:8px;}
+.checkbox-row input[type=checkbox]{width:16px;height:16px;margin-top:2px;flex-shrink:0;}
+.checkbox-row label{font-size:12px;color:#854f0b;line-height:1.5;cursor:pointer;}
+.edit-panel{display:none;background:#f5f5f3;border:1px solid #e0e0dd;border-radius:12px;padding:1rem 1.25rem;margin-top:4px;}
+.edit-panel.show{display:block;}
+.irregular-tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;background:#E6F1FB;color:#0C447C;border:1px solid #B5D4F4;margin:2px;}
+.date-selects{display:flex;gap:6px;align-items:center;}
+.date-selects select{width:auto;flex:1;}
+.today-badge{display:inline-block;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;background:#e63946;color:#fff;margin-right:4px;vertical-align:middle;}
+@media(max-width:600px){.wrap{padding:1rem;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>📋 シフト管理ツール</h1>
+
+<!-- 2. 日別稼働人数 -->
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="sec-ttl" style="margin-bottom:0;">📊 日別稼働人数</div>
+      <select id="view-month" onchange="renderSummary()" style="font-size:16px;font-weight:600;padding:6px 10px;width:auto;"></select>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:12px;color:#888;">稼働 <span id="sm-days" style="font-weight:600;color:#1a1a1a;">—</span></span>
+      <span style="font-size:12px;color:#888;">土日祝 <span id="sm-we-days" style="font-weight:600;color:#1a1a1a;">—</span></span>
+      <button onclick="exportCSV()" style="font-size:12px;padding:4px 10px;">↓ CSV</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table style="min-width:520px;">
+      <thead><tr>
+        <th style="width:66px;">日付</th><th style="width:26px;">曜</th>
+        <th style="width:64px;text-align:right;">稼働人数</th>
+        <th style="width:56px;text-align:right;">土日祝日出勤</th>
+        <th style="width:56px;text-align:right;">振替休日</th>
+        <th style="width:44px;text-align:right;">有給</th>
+        <th style="width:40px;text-align:right;">半休</th>
+        <th>メンバー詳細</th>
+      </tr></thead>
+      <tbody id="summary-body"><tr><td colspan="8" class="empty">対象月を選択すると集計が表示されます</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 1. シフト登録 -->
+<div class="card">
+  <div class="sec-ttl" id="form-title">シフト登録</div>
+  <div style="font-size:12px;color:#888;background:#f5f5f3;border-radius:6px;padding:8px 12px;margin-bottom:12px;line-height:1.6;">⚠️ こちらはCS内での稼働人数把握のための管理ツールです。勤怠の手続きについては別途各自でお願いいたします。</div>
+  <div id="edit-mode-banner" style="display:none;background:#fff3cd;border:1px solid #f0d060;border-radius:6px;padding:6px 12px;font-size:12px;color:#856404;margin-bottom:8px;">✏️ 修正モード中　<button onclick="cancelEdit()" style="font-size:11px;padding:2px 8px;margin-left:8px;">キャンセル</button></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="form-row">
+      <label>年月</label>
+      <div class="date-selects">
+        <select id="f-year" onchange="onYearMonthChange()"></select>
+        <select id="f-month-sel" onchange="onYearMonthChange()"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>日</label>
+      <select id="f-day-sel"></select>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="form-row"><label>メンバー</label><select id="f-member"></select></div>
+    <div class="form-row">
+      <label>シフト種別</label>
+      <select id="f-type" onchange="onTypeChange()">
+        <option value="paid">有給休暇</option>
+        <option value="absent">欠勤</option>
+        <option value="halfam">午前休</option>
+        <option value="halfpm">午後休</option>
+        <option value="furikae">振替休日</option>
+        <option value="we">土日祝日出勤</option>
+      </select>
+    </div>
+  </div>
+  <div class="sub-box origin-box" id="origin-box">
+    <div style="font-size:12px;color:#888;margin-bottom:8px;">🔗 振替元の休日出勤日</div>
+    <div class="form-row" style="margin-bottom:4px;"><label>休日出勤した年月</label>
+      <div class="date-selects">
+        <select id="orig-year"></select>
+        <select id="orig-month-sel"></select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:0;"><label>日</label>
+      <select id="orig-day-sel"></select>
+    </div>
+    <div class="err-hint" id="origin-err">休日出勤日は土曜か日曜を選んでください</div>
+    <div style="font-size:11px;color:#bbb;margin-top:6px;">選択しなくても登録できます。後から備考に記載も可。</div>
+  </div>
+  </div>
+  <div class="form-row"><label>備考（任意）</label><input type="text" id="f-note" placeholder="例：月末繁忙のため"></div>
+  <div class="err-hint" id="dup-err">同じメンバー・日付・種別の登録が既にあります。</div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+    <button onclick="clearForm()">クリア</button>
+    <button class="btn-p" id="submit-btn" onclick="submitShift()">＋ 登録</button>
+  </div>
+</div>
+
+<!-- 3. 登録済みシフト一覧 -->
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
+    <div class="sec-ttl" style="margin-bottom:0;">📋 登録済みシフト一覧</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="entry-count" style="font-size:12px;color:#888;"></span>
+      <button id="shift-list-toggle" onclick="toggleShiftList()" style="font-size:12px;padding:4px 10px;">▲ 閉じる</button>
+    </div>
+  </div>
+  <div style="margin-top:0.75rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <select id="filter-member" onchange="renderList()" style="font-size:12px;padding:4px 8px;width:auto;">
+      <option value="">すべてのメンバー</option>
+    </select>
+    <button id="toggle-past-btn" onclick="togglePastShifts()" style="font-size:12px;padding:4px 10px;">📅 過去のシフトも表示</button>
+    <span id="past-label" style="display:none;font-size:11px;color:#888;">（過去を含む全件表示中）</span>
+  </div>
+  <div id="shift-list-body-wrap" style="overflow-x:auto;">
+    <table style="min-width:500px;">
+      <thead><tr>
+        <th style="width:72px;">日付</th><th style="width:26px;">曜</th>
+        <th style="width:100px;">メンバー</th>
+        <th style="width:110px;">種別</th>
+        <th style="width:100px;">振替元</th>
+        <th>備考</th>
+        <th style="width:110px;text-align:center;">操作</th>
+      </tr></thead>
+      <tbody id="shift-list-body"><tr><td colspan="7" class="empty">まだ登録がありません</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 4. メンバーマスタ -->
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <div class="sec-ttl" style="margin-bottom:0;">👥 メンバーマスタ</div>
+    <span style="font-size:12px;color:#888;" id="member-count"></span>
+  </div>
+  <div style="font-size:12px;color:#888;margin-bottom:12px;">ℹ️ 固定休曜日は稼働人数の自動計算から除外されます。イレギュラーな週は「週の例外」で個別に上書きできます。</div>
+  <div style="overflow-x:auto;">
+    <table style="min-width:440px;">
+      <thead><tr>
+        <th style="width:110px;">名前</th>
+        <th>固定休曜日</th>
+        <th style="width:76px;">稼働開始</th>
+        <th style="width:48px;text-align:center;">設定</th>
+      </tr></thead>
+      <tbody id="member-list-body"></tbody>
+    </table>
+  </div>
+  <div class="edit-panel" id="edit-panel">
+    <div style="font-size:13px;font-weight:600;margin-bottom:12px;" id="edit-panel-title"></div>
+    <div style="font-size:12px;color:#888;margin-bottom:6px;">通常の固定休曜日（毎週）</div>
+    <div class="day-check-row" id="edit-fixed-row"></div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e8e8e5;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">🔄 週の例外（イレギュラーな休み替え）</div>
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:160px;">
+          <label style="font-size:11px;color:#888;">対象週（その週のどこかの日付）</label>
+          <div class="date-selects">
+            <select id="exc-year"></select>
+            <select id="exc-month-sel"></select>
+            <select id="exc-day-sel"></select>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <label style="font-size:11px;color:#888;">その週の休み曜日</label>
+          <div class="day-check-row" id="edit-exc-row" style="margin-top:0;"></div>
+        </div>
+        <button class="btn-sm btn-p" onclick="addException()" style="flex-shrink:0;align-self:flex-end;">追加</button>
+      </div>
+      <div id="exc-list" style="font-size:12px;"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+      <button class="btn-sm" onclick="closeEditPanel()">キャンセル</button>
+      <button class="btn-sm btn-p" onclick="saveEditPanel()">保存</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const DOW_NAMES=['日','月','火','水','木','金','土'];
+const LABELS={we:'土日祝日出勤',furikae:'振替休日',paid:'有給休暇',halfpm:'午後休',halfam:'午前休',absent:'欠勤','土日祝日出勤':'土日祝日出勤','振替休日':'振替休日','有給休暇':'有給休暇','午後休':'午後休','午前休':'午前休','欠勤':'欠勤','休暇':'有給休暇','時短':'時短'};
+const BCLS={we:'b-we',furikae:'b-furikae',paid:'b-paid',halfpm:'b-halfpm',halfam:'b-halfam',absent:'b-absent','土日祝日出勤':'b-we','振替休日':'b-furikae','有給休暇':'b-paid','午後休':'b-halfpm','午前休':'b-halfam','欠勤':'b-absent','休暇':'b-paid','時短':'b-halfpm'};
+const STORAGE_KEY='shift-mgr-v4';
+// 古いバージョンのキャッシュを削除
+['shift-mgr-v1','shift-mgr-v2','shift-mgr-v3'].forEach(k=>localStorage.removeItem(k));
+
+
+const COMPANY_HOLIDAYS=['2026-08-13','2026-08-14'];
+
+let MEMBERS=[
+  {name:'堀川梓',start:null,fixedOff:[],exceptions:[]},
+  {name:'小川鈴音',start:null,fixedOff:[],exceptions:[]},
+  {name:'北堀麻衣',start:null,fixedOff:[],exceptions:[]},
+  {name:'清水結穂',start:null,fixedOff:[],exceptions:[]},
+  {name:'佐久間愛みり',start:null,fixedOff:[],exceptions:[]},
+  {name:'松澤葵',start:null,fixedOff:[],exceptions:[]},
+  {name:'野口和代',start:null,fixedOff:[2,3],exceptions:[
+    {week:'2026-06-22',offDays:[]},
+    {week:'2026-06-29',offDays:[]}
+  ]},
+  {name:'天野知佳',start:null,fixedOff:[1],exceptions:[]},
+  {name:'高橋郁美',start:null,fixedOff:[],exceptions:[]},
+  {name:'古城紗也香',start:null,fixedOff:[],exceptions:[]},
+  {name:'神愛莉沙',start:null,fixedOff:[],exceptions:[]},
+  {name:'水野玲香',start:null,fixedOff:[],exceptions:[]},
+  {name:'武末夏海',start:null,fixedOff:[],exceptions:[]},
+  {name:'内田友里絵',start:'2026-07-01',fixedOff:[],exceptions:[],note:'2026年7月より稼働'},
+  {name:'髙市裕子',start:null,fixedOff:[],exceptions:[],note:'育休中'},
+  {name:'間野裕子',start:null,fixedOff:[],exceptions:[],note:'育休中'},
+];
+
+// 野口さんの週例外（6/30週と7/1週は全曜日出勤）
+MEMBERS.find(m=>m.name==='野口和代').exceptions=[
+  {week:'2026-06-29',offDays:[]},
+  {week:'2026-06-29',offDays:[]}
+];
+
+const INITIAL_SHIFTS=[
+  // 有給休暇
+  {date:'2026-06-08',member:'武末夏海',type:'paid',note:'',originDate:''},
+  {date:'2026-06-09',member:'堀川梓',type:'paid',note:'',originDate:''},
+  {date:'2026-06-15',member:'神愛莉沙',type:'paid',note:'',originDate:''},
+  {date:'2026-06-15',member:'佐久間愛みり',type:'paid',note:'',originDate:''},
+  {date:'2026-06-16',member:'堀川梓',type:'paid',note:'',originDate:''},
+  {date:'2026-06-19',member:'水野玲香',type:'paid',note:'',originDate:''},
+  {date:'2026-06-23',member:'堀川梓',type:'paid',note:'',originDate:''},
+  // 午後休
+  {date:'2026-06-05',member:'神愛莉沙',type:'halfpm',note:'',originDate:''},
+  {date:'2026-06-10',member:'松澤葵',type:'halfpm',note:'',originDate:''},
+  {date:'2026-06-12',member:'古城紗也香',type:'halfpm',note:'',originDate:''},
+  {date:'2026-06-17',member:'松澤葵',type:'halfpm',note:'6/27出勤分',originDate:'2026-06-27'},
+  // 午前休
+  {date:'2026-06-12',member:'松澤葵',type:'halfam',note:'6/14出勤分',originDate:'2026-06-14'},
+  // 振替休日
+  {date:'2026-06-02',member:'松澤葵',type:'furikae',note:'',originDate:'2026-06-07'},
+  {date:'2026-06-03',member:'古城紗也香',type:'furikae',note:'',originDate:'2026-06-06'},
+  {date:'2026-06-08',member:'水野玲香',type:'furikae',note:'',originDate:'2026-05-31'},
+  {date:'2026-06-15',member:'松澤葵',type:'furikae',note:'',originDate:'2026-06-21'},
+  {date:'2026-06-17',member:'古城紗也香',type:'furikae',note:'',originDate:'2026-06-20'},
+  {date:'2026-06-19',member:'堀川梓',type:'furikae',note:'',originDate:'2026-06-06'},
+  {date:'2026-06-23',member:'小川鈴音',type:'furikae',note:'',originDate:'2026-06-28'},
+  {date:'2026-06-24',member:'松澤葵',type:'furikae',note:'',originDate:''},
+  {date:'2026-06-26',member:'古城紗也香',type:'furikae',note:'',originDate:'2026-06-27'},
+  {date:'2026-06-29',member:'佐久間愛みり',type:'furikae',note:'',originDate:'2026-06-06'},
+  {date:'2026-06-30',member:'野口和代',type:'furikae',note:'',originDate:''},
+  // 土日祝日出勤（松澤）
+  {date:'2026-06-07',member:'松澤葵',type:'we',note:'',originDate:''},
+  {date:'2026-06-14',member:'松澤葵',type:'we',note:'',originDate:''},
+  {date:'2026-06-21',member:'松澤葵',type:'we',note:'',originDate:''},
+  {date:'2026-06-27',member:'松澤葵',type:'we',note:'',originDate:''},
+
+
+  // 7〜10月 追加シフト
+  // 堀川
+  {date:'2026-07-08',member:'堀川梓',type:'halfpm',note:'',originDate:''},
+  {date:'2026-07-24',member:'堀川梓',type:'paid',note:'',originDate:''},
+  // 神
+  {date:'2026-07-21',member:'神愛莉沙',type:'paid',note:'',originDate:''},
+  {date:'2026-08-06',member:'神愛莉沙',type:'paid',note:'',originDate:''},
+  {date:'2026-08-10',member:'神愛莉沙',type:'paid',note:'',originDate:''},
+  {date:'2026-08-12',member:'神愛莉沙',type:'paid',note:'',originDate:''},
+  {date:'2026-08-18',member:'神愛莉沙',type:'paid',note:'',originDate:''},
+  // 松澤
+  {date:'2026-08-10',member:'松澤葵',type:'paid',note:'',originDate:''},
+  {date:'2026-08-12',member:'松澤葵',type:'paid',note:'',originDate:''},
+  // 小川
+  {date:'2026-07-01',member:'小川鈴音',type:'halfpm',note:'月初のため',originDate:'2026-06-28'},
+  {date:'2026-07-28',member:'小川鈴音',type:'furikae',note:'',originDate:'2026-06-28'},
+  {date:'2026-10-19',member:'小川鈴音',type:'paid',note:'',originDate:''},
+  {date:'2026-10-20',member:'小川鈴音',type:'paid',note:'',originDate:''},
+  {date:'2026-10-21',member:'小川鈴音',type:'paid',note:'',originDate:''},
+  // 土日祝日出勤 追加分
+  {date:'2026-06-06',member:'堀川梓',type:'we',note:'',originDate:''},
+  {date:'2026-06-13',member:'高橋郁美',type:'we',note:'',originDate:''},
+  {date:'2026-06-21',member:'天野知佳',type:'we',note:'10:00-15:00',originDate:''},
+  {date:'2026-06-27',member:'野口和代',type:'we',note:'10:00-15:00',originDate:''},
+  {date:'2026-06-28',member:'小川鈴音',type:'we',note:'9:00-18:00',originDate:''},
+  {date:'2026-06-28',member:'佐久間愛みり',type:'we',note:'',originDate:''},
+  {date:'2026-06-28',member:'武末夏海',type:'we',note:'',originDate:''},
+  // 土日祝日出勤（古城）
+  {date:'2026-06-06',member:'古城紗也香',type:'we',note:'',originDate:''},
+  {date:'2026-06-20',member:'古城紗也香',type:'we',note:'',originDate:''},
+  {date:'2026-06-27',member:'古城紗也香',type:'we',note:'',originDate:''},
+
+  // 1〜5月データ
+  {date:'2026-01-04',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-01-04',member:'高橋郁美',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-01-04',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-01-04',member:'水野玲香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-01-11',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-01-12',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-01-13',member:'水野玲香',type:'振替休日',note:'1/4出勤の振替',originDate:''},
+  {date:'2026-01-16',member:'清水結穂',type:'休暇',note:'',originDate:''},
+  {date:'2026-01-16',member:'高橋郁美',type:'振替休日',note:'1/4出勤の振替',originDate:''},
+  {date:'2026-01-18',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-01-19',member:'松澤葵',type:'振替休日',note:'1/4出勤の振替',originDate:''},
+  {date:'2026-01-21',member:'古城紗也香',type:'休暇',note:'',originDate:''},
+  {date:'2026-01-22',member:'古城紗也香',type:'休暇',note:'',originDate:''},
+  {date:'2026-01-23',member:'松澤葵',type:'振替休日',note:'1/12出勤の振替',originDate:''},
+  {date:'2026-01-25',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-01-27',member:'堀川梓',type:'時短',note:'早退・14時まで稼働',originDate:''},
+  {date:'2026-01-27',member:'小川鈴音',type:'振替休日',note:'1/25日曜出勤の振替',originDate:''},
+  {date:'2026-01-28',member:'清水結穂',type:'休暇',note:'',originDate:''},
+  {date:'2026-01-29',member:'松澤葵',type:'振替休日',note:'1/18出勤の振替',originDate:''},
+  {date:'2026-02-05',member:'間野裕子',type:'午前休',note:'',originDate:''},
+  {date:'2026-02-05',member:'小川鈴音',type:'振替休日',note:'2/8日曜出勤の振替',originDate:''},
+  {date:'2026-02-05',member:'佐久間愛みり',type:'時短',note:'在宅・2/7土曜出勤の振替',originDate:''},
+  {date:'2026-02-07',member:'佐久間愛みり',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-02-08',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-02-09',member:'松澤葵',type:'休暇',note:'',originDate:''},
+  {date:'2026-02-10',member:'間野裕子',type:'休暇',note:'',originDate:''},
+  {date:'2026-02-18',member:'佐久間愛みり',type:'時短',note:'振替休日',originDate:''},
+  {date:'2026-02-19',member:'間野裕子',type:'午前休',note:'',originDate:''},
+  {date:'2026-02-22',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-02-23',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-02-25',member:'堀川梓',type:'振替休日',note:'2/28土日祝日出勤の振替',originDate:''},
+  {date:'2026-02-25',member:'松澤葵',type:'振替休日',note:'2/23出勤の振替',originDate:''},
+  {date:'2026-02-28',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-02-28',member:'高橋郁美',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-02-28',member:'水野玲香',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-03-01',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-01',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-03-02',member:'北堀麻衣',type:'休暇',note:'',originDate:''},
+  {date:'2026-03-02',member:'神愛莉沙',type:'休暇',note:'月初のお休み',originDate:''},
+  {date:'2026-03-04',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
+  {date:'2026-03-05',member:'間野裕子',type:'午前休',note:'',originDate:''},
+  {date:'2026-03-05',member:'松澤葵',type:'欠勤',note:'体調不良により急遽お休み',originDate:''},
+  {date:'2026-03-06',member:'間野裕子',type:'休暇',note:'',originDate:''},
+  {date:'2026-03-06',member:'松澤葵',type:'振替休日',note:'3/1出勤の振替',originDate:''},
+  {date:'2026-03-06',member:'古城紗也香',type:'休暇',note:'',originDate:''},
+  {date:'2026-03-08',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-08',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-10',member:'堀川梓',type:'休暇',note:'',originDate:''},
+  {date:'2026-03-11',member:'間野裕子',type:'欠勤',note:'発熱のため急遽お休み',originDate:''},
+  {date:'2026-03-11',member:'小川鈴音',type:'午後休',note:'3/8日曜出勤の振替（先取り）',originDate:''},
+  {date:'2026-03-13',member:'高橋郁美',type:'午後休',note:'3/13 14時以降休・2/28出勤の振替',originDate:''},
+  {date:'2026-03-13',member:'高橋郁美',type:'午後休',note:'2/28出勤の振替・14時まで稼働',originDate:''},
+  {date:'2026-03-13',member:'古城紗也香',type:'午後休',note:'15時まで稼働',originDate:''},
+  {date:'2026-03-14',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-16',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
+  {date:'2026-03-17',member:'小川鈴音',type:'午後休',note:'3/8日曜出勤の振替（先取り）',originDate:''},
+  {date:'2026-03-19',member:'野口和代',type:'休暇',note:'',originDate:''},
+  {date:'2026-03-19',member:'神愛莉沙',type:'時短',note:'私用のため15時まで稼働（在宅）',originDate:''},
+  {date:'2026-03-20',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-21',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-22',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-23',member:'堀川梓',type:'振替休日',note:'3/21土曜出勤の振替',originDate:''},
+  {date:'2026-03-23',member:'小川鈴音',type:'午後休',note:'3/8日曜出勤の振替（先取り）',originDate:''},
+  {date:'2026-03-23',member:'古城紗也香',type:'振替休日',note:'3/14出勤の振替',originDate:''},
+  {date:'2026-03-25',member:'堀川梓',type:'休暇',note:'',originDate:''},
+  {date:'2026-03-25',member:'水野玲香',type:'時短',note:'12時から出勤',originDate:''},
+  {date:'2026-03-27',member:'松澤葵',type:'振替休日',note:'振替',originDate:''},
+  {date:'2026-03-28',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-28',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-29',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-03-29',member:'水野玲香',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-03-30',member:'古城紗也香',type:'振替休日',note:'3/28出勤の振替',originDate:''},
+  {date:'2026-04-03',member:'松澤葵',type:'振替休日',note:'4/4土曜出勤の振替',originDate:''},
+  {date:'2026-04-04',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-04',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-05',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-04-05',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-06',member:'松澤葵',type:'時短',note:'16時まで勤務',originDate:''},
+  {date:'2026-04-06',member:'古城紗也香',type:'振替休日',note:'4/4出勤の振替',originDate:''},
+  {date:'2026-04-06',member:'神愛莉沙',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-07',member:'古城紗也香',type:'振替休日',note:'4/5出勤の振替',originDate:''},
+  {date:'2026-04-08',member:'間野裕子',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-08',member:'小川鈴音',type:'午後休',note:'4/26日曜出勤の振替（先取り）',originDate:''},
+  {date:'2026-04-09',member:'堀川梓',type:'休暇',note:'4/8水曜出社で振替',originDate:''},
+  {date:'2026-04-09',member:'間野裕子',type:'午後休',note:'',originDate:''},
+  {date:'2026-04-10',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-10',member:'松澤葵',type:'振替休日',note:'4/12日曜出勤の振替',originDate:''},
+  {date:'2026-04-10',member:'野口和代',type:'振替休日',note:'3/31出勤分の振替',originDate:''},
+  {date:'2026-04-11',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-12',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-13',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-14',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-15',member:'堀川梓',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-15',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-16',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-17',member:'堀川梓',type:'振替休日',note:'4/18土曜出勤の振替',originDate:''},
+  {date:'2026-04-17',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-17',member:'松澤葵',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-17',member:'古城紗也香',type:'振替休日',note:'4/11出勤の振替',originDate:''},
+  {date:'2026-04-18',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-18',member:'清水結穂',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-19',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-04-19',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-20',member:'清水結穂',type:'振替休日',note:'4/18土曜出勤の振替',originDate:''},
+  {date:'2026-04-20',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-20',member:'野口和代',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-20',member:'古城紗也香',type:'振替休日',note:'4/19出勤の振替',originDate:''},
+  {date:'2026-04-21',member:'堀川梓',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-21',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-22',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-23',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-24',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-24',member:'水野玲香',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-24',member:'古城紗也香',type:'振替休日',note:'4/25出勤の振替',originDate:''},
+  {date:'2026-04-24',member:'神愛莉沙',type:'休暇',note:'',originDate:''},
+  {date:'2026-04-25',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-26',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-04-27',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-28',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-28',member:'古城紗也香',type:'午後休',note:'',originDate:''},
+  {date:'2026-04-28',member:'神愛莉沙',type:'時短',note:'14時まで稼働（在宅）',originDate:''},
+  {date:'2026-04-29',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-30',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
+  {date:'2026-04-30',member:'松澤葵',type:'午後休',note:'',originDate:''},
+  {date:'2026-04-30',member:'古城紗也香',type:'休暇',note:'',originDate:''},
+  {date:'2026-05-01',member:'天野知佳',type:'休暇',note:'月初のお休み',originDate:''},
+  {date:'2026-05-01',member:'水野玲香',type:'休暇',note:'月初のお休み',originDate:''},
+  {date:'2026-05-01',member:'古城紗也香',type:'休暇',note:'月初のお休み',originDate:''},
+  {date:'2026-05-01',member:'神愛莉沙',type:'休暇',note:'月初のお休み',originDate:''},
+  {date:'2026-05-02',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-02',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-03',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-04',member:'野口和代',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-05',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-05-05',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-06',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-07',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
+  {date:'2026-05-07',member:'野口和代',type:'振替休日',note:'5/4出勤の振替',originDate:''},
+  {date:'2026-05-07',member:'神愛莉沙',type:'休暇',note:'',originDate:''},
+  {date:'2026-05-08',member:'古城紗也香',type:'振替休日',note:'5/5出勤の振替',originDate:''},
+  {date:'2026-05-09',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-10',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-10',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-05-11',member:'松澤葵',type:'振替休日',note:'5/10日曜出勤の振替',originDate:''},
+  {date:'2026-05-12',member:'堀川梓',type:'休暇',note:'',originDate:''},
+  {date:'2026-05-13',member:'小川鈴音',type:'午後休',note:'5/2土曜出勤の振替',originDate:''},
+  {date:'2026-05-13',member:'古城紗也香',type:'振替休日',note:'5/6出勤の振替',originDate:''},
+  {date:'2026-05-15',member:'堀川梓',type:'振替休日',note:'5/9土曜出勤の振替',originDate:''},
+  {date:'2026-05-15',member:'松澤葵',type:'振替休日',note:'振替',originDate:''},
+  {date:'2026-05-15',member:'野口和代',type:'休暇',note:'',originDate:''},
+  {date:'2026-05-16',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-17',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-17',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-05-18',member:'古城紗也香',type:'振替休日',note:'5/16出勤の振替',originDate:''},
+  {date:'2026-05-20',member:'小川鈴音',type:'振替休日',note:'5/24日曜出勤の振替（先取り）',originDate:''},
+  {date:'2026-05-22',member:'古城紗也香',type:'振替休日',note:'5/23出勤の振替（先取り）',originDate:''},
+  {date:'2026-05-23',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-24',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-24',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-05-25',member:'北堀麻衣',type:'休暇',note:'通院',originDate:''},
+  {date:'2026-05-25',member:'小川鈴音',type:'午後休',note:'5/24日曜出勤の振替',originDate:''},
+  {date:'2026-05-25',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
+  {date:'2026-05-26',member:'堀川梓',type:'休暇',note:'',originDate:''},
+  {date:'2026-05-26',member:'松澤葵',type:'振替休日',note:'振替',originDate:''},
+  {date:'2026-05-27',member:'水野玲香',type:'振替休日',note:'5/30出勤の振替（先取り）',originDate:''},
+  {date:'2026-05-27',member:'古城紗也香',type:'時短',note:'振替出社17時まで',originDate:''},
+  {date:'2026-05-29',member:'古城紗也香',type:'振替休日',note:'5/30出勤の振替（先取り）',originDate:''},
+  {date:'2026-05-30',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-30',member:'水野玲香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-30',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-31',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-31',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
+  {date:'2026-05-31',member:'水野玲香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+  {date:'2026-05-31',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
+];
+
+let shifts=[];
+let editingIdx=-1;
+let editExceptions=[];
+
+function save(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({shifts,members:MEMBERS}));}catch(e){}
+}
+function load(){
+  shifts=INITIAL_SHIFTS.map((s,i)=>({...s,id:i+1}));
+  try{
+    const d=localStorage.getItem(STORAGE_KEY);
+    if(d){
+      const p=JSON.parse(d);
+      if(p.shifts&&p.shifts.length>0)shifts=p.shifts;
+      if(p.members)MEMBERS=p.members;
+    }
+  }catch(e){}
+  shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.member.localeCompare(b.member));
+}
+
+function getMondayOfWeek(dateStr){
+  const d=new Date(dateStr);const dow=d.getDay();
+  d.setDate(d.getDate()+(dow===0?-6:1-dow));
+  return d.toISOString().slice(0,10);
+}
+function getOffDaysForDate(member,ds){
+  const monday=getMondayOfWeek(ds);
+  const exc=member.exceptions&&member.exceptions.find(e=>e.week===monday);
+  return exc?exc.offDays:member.fixedOff||[];
+}
+function activeMembersForDate(ds){return MEMBERS.filter(m=>m.note!=='育休中'&&(!m.start||ds>=m.start));}
+
+/* ── プルダウン日付 ── */
+function buildYearSel(selId,defaultYear){
+  const sel=document.getElementById(selId);sel.innerHTML='';
+  const y=defaultYear||new Date().getFullYear();
+  for(let i=y-1;i<=y+2;i++){const o=document.createElement('option');o.value=i;o.textContent=i+'年';if(i===y)o.selected=true;sel.appendChild(o);}
+}
+function buildMonthSel(selId,defaultMonth){
+  const sel=document.getElementById(selId);sel.innerHTML='';
+  for(let m=1;m<=12;m++){const o=document.createElement('option');o.value=m;o.textContent=m+'月';if(m===defaultMonth)o.selected=true;sel.appendChild(o);}
+}
+function buildDaySel(selId,year,month,defaultDay){
+  const sel=document.getElementById(selId);sel.innerHTML='';
+  const days=new Date(year,month,0).getDate();
+  const blank=document.createElement('option');blank.value='';blank.textContent='日';sel.appendChild(blank);
+  for(let d=1;d<=days;d++){
+    const o=document.createElement('option');o.value=d;
+    const dow=new Date(year,month-1,d).getDay();
+    const dateStr=`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isHoliday=COMPANY_HOLIDAYS.includes(dateStr);
+    const isWe=dow===0||dow===6||isHoliday;
+    o.textContent=d+'日（'+DOW_NAMES[dow]+'）';
+    if(isWe)o.style.color='#a32d2d';
+    if(d===defaultDay)o.selected=true;
+    sel.appendChild(o);
+  }
+}
+function getDateStr(yearId,monthId,dayId){
+  const y=document.getElementById(yearId).value;
+  const m=document.getElementById(monthId).value;
+  const d=document.getElementById(dayId).value;
+  if(!d)return '';
+  return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function onYearMonthChange(){
+  const y=parseInt(document.getElementById('f-year').value);
+  const m=parseInt(document.getElementById('f-month-sel').value);
+  const curDay=parseInt(document.getElementById('f-day-sel').value)||1;
+  buildDaySel('f-day-sel',y,m,curDay);
+  buildMemberSelect(getDateStr('f-year','f-month-sel','f-day-sel')||`${y}-${String(m).padStart(2,'0')}-01`);
+}
+function onOrigYearMonthChange(){
+  const y=parseInt(document.getElementById('orig-year').value);
+  const m=parseInt(document.getElementById('orig-month-sel').value);
+  buildDaySel('orig-day-sel',y,m,null);
+}
+function onExcYearMonthChange(){
+  const y=parseInt(document.getElementById('exc-year').value);
+  const m=parseInt(document.getElementById('exc-month-sel').value);
+  buildDaySel('exc-day-sel',y,m,null);
+}
+
+const today=new Date();
+const ty=today.getFullYear(),tm=today.getMonth()+1,td=today.getDate();
+buildYearSel('f-year',ty);buildMonthSel('f-month-sel',tm);buildDaySel('f-day-sel',ty,tm,td);
+buildYearSel('orig-year',ty);buildMonthSel('orig-month-sel',tm);buildDaySel('orig-day-sel',ty,tm,null);
+buildYearSel('exc-year',ty);buildMonthSel('exc-month-sel',tm);buildDaySel('exc-day-sel',ty,tm,null);
+document.getElementById('orig-year').addEventListener('change',onOrigYearMonthChange);
+document.getElementById('orig-month-sel').addEventListener('change',onOrigYearMonthChange);
+document.getElementById('exc-year').addEventListener('change',onExcYearMonthChange);
+document.getElementById('exc-month-sel').addEventListener('change',onExcYearMonthChange);
+
+// 野口さんの週例外を正しく設定
+function fixNoguchi(){
+  const m=MEMBERS.find(x=>x.name==='野口和代');
+  if(!m)return;
+  m.exceptions=[
+    {week:'2026-06-29',offDays:[]},
+    {week:'2026-06-29',offDays:[]}
+  ];
+  // 6/30週（月曜=6/29）と7/1週（月曜=6/29は同じ週）
+  m.exceptions=[{week:'2026-06-22',offDays:[]},{week:'2026-06-29',offDays:[]}];
+}
+
+// 初期化
+load();
+fixNoguchi();
+save();
+
+buildMemberSelect(`${ty}-${String(tm).padStart(2,'0')}-${String(td).padStart(2,'0')}`);
+
+function buildMemberSelect(ds){
+  const sel=document.getElementById('f-member');
+  const cur=sel.value;sel.innerHTML='';
+  activeMembersForDate(ds||'9999').forEach(m=>{
+    const o=document.createElement('option');o.value=m.name;o.textContent=m.name;sel.appendChild(o);
+  });
+  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
+}
+
+function onTypeChange(){
+  const t=document.getElementById('f-type').value;
+  document.getElementById('origin-box').classList.toggle('show',t==='furikae');
+  ['origin-err','dup-err'].forEach(id=>document.getElementById(id).classList.remove('show'));
+}
+
+function addShift(){
+  const date=getDateStr('f-year','f-month-sel','f-day-sel');
+  const member=document.getElementById('f-member').value;
+  const type=document.getElementById('f-type').value;
+  const note=document.getElementById('f-note').value.trim();
+  ['dup-err','origin-err'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  if(!date){alert('日を選択してください');return;}
+  if(!member){alert('メンバーを選択してください');return;}
+  if(shifts.find(s=>s.date===date&&s.member===member&&s.type===type)){document.getElementById('dup-err').classList.add('show');return;}
+  let originDate='';
+  if(type==='furikae'){
+    originDate=getDateStr('orig-year','orig-month-sel','orig-day-sel');
+    if(originDate){const od=new Date(originDate).getDay();if(od!==0&&od!==6){document.getElementById('origin-err').classList.add('show');return;}}
+  }
+  shifts.push({id:Date.now(),date,member,type,note,originDate});
+  // 振替休日で振替元が土日の場合、土日祝日出勤を自動登録
+  if(type==='furikae'&&originDate){
+    const od=new Date(originDate).getDay();
+    if(od===0||od===6){
+      const alreadyExists=shifts.find(s=>s.date===originDate&&s.member===member&&s.type==='we');
+      if(!alreadyExists){
+        shifts.push({id:Date.now()+1,date:originDate,member,type:'we',note:'（振替休日登録から自動追加）',originDate:''});
+      }
+    }
+  }
+  shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.member.localeCompare(b.member));
+  save();renderAll();
+  document.getElementById('f-note').value='';
+  buildDaySel('orig-day-sel',parseInt(document.getElementById('orig-year').value),parseInt(document.getElementById('orig-month-sel').value),null);
+}
+
+function removeShift(id){if(!confirm('削除しますか？'))return;shifts=shifts.filter(s=>s.id!==id);save();renderAll();}
+
+let editingShiftId=null;
+
+function editShift(id){
+  const s=shifts.find(x=>x.id===id);
+  if(!s)return;
+  editingShiftId=id;
+  // 日付セット
+  const [y,m,d]=s.date.split('-').map(Number);
+  document.getElementById('f-year').value=y;
+  buildMonthSel('f-month-sel',m);
+  document.getElementById('f-month-sel').value=m;
+  buildDaySel('f-day-sel',y,m,d);
+  document.getElementById('f-day-sel').value=d;
+  buildMemberSelect(s.date);
+  document.getElementById('f-member').value=s.member;
+  // 種別セット（英語コードと日本語両対応）
+  const typeMap={'土日祝日出勤':'we','振替休日':'furikae','有給休暇':'paid','午後休':'halfpm','午前休':'halfam','欠勤':'absent','休暇':'paid','時短':'halfpm'};
+  const typeVal=(['we','furikae','paid','halfam','halfpm','absent'].includes(s.type))?s.type:(typeMap[s.type]||'paid');
+  document.getElementById('f-type').value=typeVal;
+  onTypeChange();
+  // 振替元日付セット
+  if(s.originDate){
+    const [oy,om,od]=s.originDate.split('-').map(Number);
+    document.getElementById('orig-year').value=oy;
+    buildMonthSel('orig-month-sel',om);
+    document.getElementById('orig-month-sel').value=om;
+    buildDaySel('orig-day-sel',oy,om,od);
+    document.getElementById('orig-day-sel').value=od;
+  }
+  document.getElementById('f-note').value=s.note||'';
+  // UIを修正モードに
+  document.getElementById('form-title').textContent='シフト修正';
+  document.getElementById('edit-mode-banner').style.display='block';
+  document.getElementById('submit-btn').textContent='✔ 更新';
+  // フォームまでスクロール
+  document.querySelector('.card').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelEdit(){
+  editingShiftId=null;
+  document.getElementById('form-title').textContent='シフト登録';
+  document.getElementById('edit-mode-banner').style.display='none';
+  document.getElementById('submit-btn').textContent='＋ 登録';
+  clearForm();
+}
+
+function submitShift(){
+  if(editingShiftId!==null){
+    updateShift();
+  } else {
+    addShift();
+  }
+}
+
+function updateShift(){
+  const date=getDateStr('f-year','f-month-sel','f-day-sel');
+  const member=document.getElementById('f-member').value;
+  const type=document.getElementById('f-type').value;
+  const note=document.getElementById('f-note').value.trim();
+  ['dup-err','origin-err'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  if(!date){alert('日を選択してください');return;}
+  if(!member){alert('メンバーを選択してください');return;}
+  // 同じ内容が他にあるか確認（自分自身は除く）
+  if(shifts.find(s=>s.id!==editingShiftId&&s.date===date&&s.member===member&&s.type===type)){document.getElementById('dup-err').classList.add('show');return;}
+  let originDate='';
+  if(type==='furikae'){
+    originDate=getDateStr('orig-year','orig-month-sel','orig-day-sel');
+    if(originDate){const od=new Date(originDate).getDay();if(od!==0&&od!==6){document.getElementById('origin-err').classList.add('show');return;}}
+  }
+  const idx=shifts.findIndex(s=>s.id===editingShiftId);
+  if(idx!==-1){shifts[idx]={...shifts[idx],date,member,type,note,originDate};}
+  shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.member.localeCompare(b.member));
+  save();renderAll();
+  cancelEdit();
+}
+
+function clearForm(){
+  document.getElementById('f-note').value='';
+  document.getElementById('f-type').value='paid';
+  ['origin-box'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  ['dup-err','origin-err'].forEach(id=>document.getElementById(id).classList.remove('show'));
+}
+
+function buildDayCheckRow(containerId,selectedDays){
+  const row=document.getElementById(containerId);row.innerHTML='';
+  [1,2,3,4,5].forEach(d=>{
+    const isOff=selectedDays.includes(d);
+    const lbl=document.createElement('label');lbl.className='day-lbl'+(isOff?' selected-off':'');
+    const cb=document.createElement('input');cb.type='checkbox';cb.value=d;cb.style.cssText='width:14px;height:14px;';
+    if(isOff)cb.checked=true;
+    cb.addEventListener('change',function(){lbl.classList.toggle('selected-off',this.checked);});
+    lbl.appendChild(cb);lbl.appendChild(document.createTextNode(DOW_NAMES[d]));
+    row.appendChild(lbl);
+  });
+}
+function getCheckedDays(containerId){return [...document.querySelectorAll(`#${containerId} input:checked`)].map(c=>parseInt(c.value));}
+
+function openEditPanel(idx){
+  if(editingIdx===idx){closeEditPanel();return;}
+  editingIdx=idx;
+  const m=MEMBERS[idx];
+  document.getElementById('edit-panel-title').textContent=m.name+'　休日設定';
+  buildDayCheckRow('edit-fixed-row',m.fixedOff||[]);
+  editExceptions=JSON.parse(JSON.stringify(m.exceptions||[]));
+  buildYearSel('exc-year',ty);buildMonthSel('exc-month-sel',tm);buildDaySel('exc-day-sel',ty,tm,null);
+  buildDayCheckRow('edit-exc-row',[]);
+  renderExcList();
+  const panel=document.getElementById('edit-panel');
+  const tbody=document.getElementById('member-list-body');
+  const targetRow=tbody.querySelectorAll('tr')[idx];
+  targetRow.parentNode.insertBefore(panel,targetRow.nextSibling);
+  panel.classList.add('show');
+}
+function closeEditPanel(){document.getElementById('edit-panel').classList.remove('show');editingIdx=-1;editExceptions=[];}
+
+function addException(){
+  const ds=getDateStr('exc-year','exc-month-sel','exc-day-sel');
+  if(!ds){alert('対象週の日付を選択してください');return;}
+  const monday=getMondayOfWeek(ds);
+  const offDays=getCheckedDays('edit-exc-row');
+  const existing=editExceptions.findIndex(e=>e.week===monday);
+  if(existing>=0)editExceptions[existing].offDays=offDays;
+  else editExceptions.push({week:monday,offDays});
+  editExceptions.sort((a,b)=>a.week.localeCompare(b.week));
+  renderExcList();
+  buildDaySel('exc-day-sel',parseInt(document.getElementById('exc-year').value),parseInt(document.getElementById('exc-month-sel').value),null);
+  buildDayCheckRow('edit-exc-row',[]);
+}
+function removeException(week){editExceptions=editExceptions.filter(e=>e.week!==week);renderExcList();}
+function renderExcList(){
+  const el=document.getElementById('exc-list');
+  if(!editExceptions.length){el.innerHTML='<span style="color:#bbb;">例外登録なし</span>';return;}
+  el.innerHTML='';
+  editExceptions.forEach(e=>{
+    const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #e8e8e5;';
+    const daysLabel=e.offDays.length?e.offDays.map(d=>`<span class="dow-pill off">${DOW_NAMES[d]}休</span>`).join(''):'<span style="color:#3B6D11;font-weight:500;">全曜日出勤</span>';
+    div.innerHTML=`<span style="font-size:12px;min-width:80px;">${e.week.slice(5)}週（月）</span><span style="flex:1;">${daysLabel}</span><button class="btn-sm btn-danger" onclick="removeException('${e.week}')" style="padding:1px 8px;font-size:11px;">削除</button>`;
+    el.appendChild(div);
+  });
+}
+function saveEditPanel(){
+  if(editingIdx<0)return;
+  MEMBERS[editingIdx].fixedOff=getCheckedDays('edit-fixed-row');
+  MEMBERS[editingIdx].exceptions=JSON.parse(JSON.stringify(editExceptions));
+  closeEditPanel();save();renderAll();
+}
+
+let shiftListOpen = true;
+function toggleShiftList(){
+  shiftListOpen = !shiftListOpen;
+  const wrap = document.getElementById('shift-list-body-wrap');
+  const btn = document.getElementById('shift-list-toggle');
+  wrap.style.display = shiftListOpen ? '' : 'none';
+  btn.textContent = shiftListOpen ? '▲ 閉じる' : '▼ 開く';
+}
+
+function getMonths(){
+  const ms=[...new Set(shifts.map(s=>s.date.slice(0,7)))].sort();
+  const cur=`${ty}-${String(tm).padStart(2,'0')}`;
+  if(!ms.includes(cur))ms.push(cur);
+  return ms.sort();
+}
+function updateMonthSelect(){
+  const ms=getMonths();
+  const sel=document.getElementById('view-month');
+  const cur=sel.value||`${ty}-${String(tm).padStart(2,'0')}`;
+  sel.innerHTML='';
+  ms.forEach(m=>{const o=document.createElement('option');o.value=m;const[y2,m2]=m.split('-');o.textContent=y2+'年'+parseInt(m2)+'月';sel.appendChild(o);});
+  sel.value=ms.includes(cur)?cur:ms[ms.length-1];
+}
+
+function renderAll(){updateMonthSelect();renderSummary();renderList();renderMembers();}
+
+function renderSummary(){
+  const mon=document.getElementById('view-month').value;
+  const tbody=document.getElementById('summary-body');
+  if(!mon){tbody.innerHTML='<tr><td colspan="8" class="empty">対象月を選択してください</td></tr>';document.getElementById('sm-days').textContent='—';document.getElementById('sm-we-days').textContent='—';return;}
+  const[y,m]=mon.split('-').map(Number);
+  const days=new Date(y,m,0).getDate();
+  let workDays=0;let weDays=0;tbody.innerHTML='';
+  for(let d=1;d<=days;d++){
+    const ds=`${mon}-${String(d).padStart(2,'0')}`;
+    const dow=new Date(ds).getDay();const isHoliday=COMPANY_HOLIDAYS.includes(ds);const isWe=dow===0||dow===6||isHoliday;
+    const active=activeMembersForDate(ds);
+    const dayShifts=shifts.filter(s=>s.date===ds);
+    const weWork=dayShifts.filter(s=>s.type==='we');
+    const furikae=dayShifts.filter(s=>s.type==='furikae');
+    const paid=dayShifts.filter(s=>s.type==='paid');
+    const halfpm=dayShifts.filter(s=>s.type==='halfpm');
+    const halfam=dayShifts.filter(s=>s.type==='halfam');
+    const absent=dayShifts.filter(s=>s.type==='absent');
+    const absentByShift=[...furikae,...paid,...absent].map(s=>s.member);
+    let wc=0;const fixedOffNames=[];
+    if(isWe){wc=weWork.length;weDays++;}
+    else{
+      active.forEach(member=>{
+        if(absentByShift.includes(member.name))return;
+        const offDays=getOffDaysForDate(member,ds);
+        if(offDays.includes(dow)){fixedOffNames.push(member.name);return;}
+        wc++;
+      });
+      workDays++;
+    }
+    if(isWe&&!isHoliday&&!dayShifts.length)continue;
+    if(isHoliday&&!dayShifts.length)continue;
+    const detail=[];
+    if(weWork.length)detail.push(`<span class="badge b-we">${weWork.map(s=>s.member).join('・')}</span>`);
+    furikae.forEach(s=>{
+      let t=`<span class="badge b-furikae">${s.member}　振替</span>`;
+      if(s.originDate){const od=DOW_NAMES[new Date(s.originDate).getDay()];t+=`<span class="tag-link">← ${s.originDate.slice(5)}(${od})出勤分</span>`;}
+      detail.push(t);
+    });
+    if(paid.length)detail.push(`<span class="badge b-paid">${paid.map(s=>s.member).join('・')}　有給</span>`);
+    if(halfpm.length)detail.push(`<span class="badge b-halfpm">${halfpm.map(s=>s.member).join('・')}　午後休</span>`);
+    if(halfam.length)detail.push(`<span class="badge b-halfam">${halfam.map(s=>s.member).join('・')}　午前休</span>`);
+    if(absent.length)detail.push(`<span class="badge b-absent">${absent.map(s=>s.member).join('・')}　欠勤</span>`);
+    if(fixedOffNames.length)detail.push(`<span class="badge b-fixoff">${fixedOffNames.join('・')}　固定休</span>`);
+    if(isHoliday)detail.push('<span style="font-size:11px;color:#854f0b;">🏢 会社休日</span>');
+    const cc=isHoliday?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:'<span style="color:#bbb;">会社休</span>'):isWe?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:'<span style="color:#bbb;">—</span>'):`<span style="font-weight:600;">${wc}人</span>`;
+    const tr=document.createElement('tr');
+    const isToday=ds===new Date().toISOString().slice(0,10);
+    if(isToday)tr.style.cssText='background:#fff8f0;border-left:3px solid #e63946;';
+    tr.innerHTML=`<td style="font-size:12px;">${isToday?'<span class=\'today-badge\'>今日</span>':''}${ds.slice(5)}</td><td style="font-size:12px;"><span class="${isWe?'dow-we':''}">${DOW_NAMES[dow]}</span></td><td style="text-align:right;">${cc}</td><td style="text-align:right;font-size:12px;">${weWork.length?`<span style="color:#3B6D11;">${weWork.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${furikae.length?`<span style="color:#633806;">${furikae.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${paid.length?`<span style="color:#72243E;">${paid.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${(halfpm.length+halfam.length)?`<span style="color:#3C3489;">${halfpm.length+halfam.length}</span>`:'—'}</td><td style="font-size:12px;">${detail.join(' ')}</td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById('sm-days').textContent=workDays+'日';
+  document.getElementById('sm-we-days').textContent=weDays+'日';
+}
+
+function renderMembers(){
+  const tbody=document.getElementById('member-list-body');
+  document.getElementById('member-count').textContent=MEMBERS.length+'名';
+  const panel=document.getElementById('edit-panel');tbody.innerHTML='';
+  MEMBERS.forEach((m,i)=>{
+    const fixedPills=(m.fixedOff&&m.fixedOff.length)?m.fixedOff.map(d=>`<span class="dow-pill off">${DOW_NAMES[d]}休</span>`).join(''):'<span style="font-size:12px;color:#bbb;">なし</span>';
+    const excCount=m.exceptions&&m.exceptions.length;
+    const excBadge=excCount?`<span class="irregular-tag">例外${excCount}件</span>`:'';const ikkyuBadge=m.note==='育休中'?'<span style="display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;background:#EEEDFE;color:#3C3489;border:1px solid #C5C0F8;margin-left:4px;">育休中</span>':'';
+    const isNew=!!m.start;
+    const tr=document.createElement('tr');if(isNew)tr.className='member-row-new';
+    tr.innerHTML=`<td style="font-weight:600;font-size:13px;">${m.name}${isNew?'<span class="b-new">NEW</span>':''}${ikkyuBadge}</td><td>${fixedPills}${excBadge}</td><td style="font-size:12px;color:#888;">${m.start||'既存'}</td><td style="text-align:center;"><button class="btn-sm" onclick="openEditPanel(${i})">${editingIdx===i?'閉じる':'編集'}</button></td>`;
+    tbody.appendChild(tr);
+    if(editingIdx===i){const panelRow=document.createElement('tr');const panelTd=document.createElement('td');panelTd.colSpan=4;panelTd.style.padding='4px 0';panelTd.appendChild(panel);panelRow.appendChild(panelTd);tbody.appendChild(panelRow);panel.classList.add('show');}
+  });
+}
+
+let showPastShifts=false;
+function togglePastShifts(){
+  showPastShifts=!showPastShifts;
+  const btn=document.getElementById('toggle-past-btn');
+  const lbl=document.getElementById('past-label');
+  btn.textContent=showPastShifts?'📅 過去を非表示にする':'📅 過去のシフトも表示';
+  lbl.style.display=showPastShifts?'inline':'none';
+  renderList();
+}
+
+function renderList(){
+  const tbody=document.getElementById('shift-list-body');
+  // メンバープルダウンを更新
+  const filterSel=document.getElementById('filter-member');
+  const curFilter=filterSel.value;
+  filterSel.innerHTML='<option value="">すべてのメンバー</option>';
+  [...new Set(shifts.map(s=>s.member))].sort().forEach(name=>{
+    const o=document.createElement('option');o.value=name;o.textContent=name;filterSel.appendChild(o);
+  });
+  if(curFilter)filterSel.value=curFilter;
+  // 過去フィルター
+  const todayStr=new Date().toISOString().slice(0,10);
+  const dateFiltered=showPastShifts?shifts:shifts.filter(s=>s.date>=todayStr);
+  const filtered=curFilter?dateFiltered.filter(s=>s.member===curFilter):dateFiltered;
+  const totalVisible=curFilter?dateFiltered.filter(s=>s.member===curFilter).length:dateFiltered.length;document.getElementById('entry-count').textContent=(showPastShifts?'':'今日以降 ')+totalVisible+'件';
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="8" class="empty">'+(shifts.length?'該当するデータがありません':'まだ登録がありません')+'</td></tr>';return;}
+  tbody.innerHTML='';
+  [...filtered].forEach(s=>{
+    const dow=new Date(s.date).getDay();const isWe=dow===0||dow===6;
+    let oc='<span style="color:#bbb;">—</span>';
+    if(s.type==='furikae'||s.type==='halfam'||s.type==='halfpm'){
+      oc=s.originDate?`<span style="font-size:12px;color:#888;">${s.originDate.slice(5)}<span style="color:#a32d2d;">(${DOW_NAMES[new Date(s.originDate).getDay()]})</span>出勤分</span>`:'<span style="font-size:11px;color:#bbb;">未記入</span>';
+    }
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-size:12px;">${s.date.slice(5)}</td><td style="font-size:12px;"><span class="${isWe?'dow-we':''}">${DOW_NAMES[dow]}</span></td><td style="font-weight:600;font-size:13px;">${s.member}</td><td><span class="badge ${(BCLS[s.type]||'b-paid')}">${(LABELS[s.type]||s.type)}</span></td><td>${oc}</td><td style="font-size:12px;color:#888;">${s.note||''}</td><td style="text-align:center;white-space:nowrap;"><button onclick="editShift(${s.id})" style="padding:2px 6px;font-size:11px;background:#4a90d9;color:#fff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;">修正</button> <button class="btn-danger" onclick="removeShift(${s.id})" style="padding:2px 6px;font-size:11px;white-space:nowrap;">削除</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function exportCSV(){
+  if(!shifts.length){alert('エクスポートするデータがありません');return;}
+  const csv='\uFEFF日付,曜日,氏名,種別,振替元の出勤日,備考\n'+shifts.map(s=>[s.date,DOW_NAMES[new Date(s.date).getDay()],s.member,LABELS[s.type],s.originDate||'',s.note||''].join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='シフト登録_'+document.getElementById('view-month').value+'.csv';
+  a.click();
+}
+
+renderAll();
+</script>
+</body>
+</html>
