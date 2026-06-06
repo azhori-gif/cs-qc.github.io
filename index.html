@@ -91,7 +91,7 @@ tr:last-child td{border-bottom:none;}
         <th style="width:56px;text-align:right;">振替休日</th>
         <th style="width:44px;text-align:right;">有給</th>
         <th style="width:40px;text-align:right;">半休</th>
-        <th style="width:56px;text-align:right;">出社</th>
+        <th style="width:56px;text-align:right;display:none;">出社</th>
         <th>メンバー詳細</th>
       </tr></thead>
       <tbody id="summary-body"><tr><td colspan="8" class="empty">対象月を選択すると集計が表示されます</td></tr></tbody>
@@ -100,7 +100,7 @@ tr:last-child td{border-bottom:none;}
 </div>
 
 <!-- 1. シフト登録 -->
-<div class="card">
+<div class="card" style="display:none;">
   <div class="sec-ttl" id="form-title">シフト登録</div>
   <div style="font-size:12px;color:#888;background:#f5f5f3;border-radius:6px;padding:8px 12px;margin-bottom:12px;line-height:1.6;">⚠️ こちらはCS内での稼働人数把握のための管理ツールです。勤怠の手続きについては別途各自でお願いいたします。</div>
   <div id="edit-mode-banner" style="display:none;background:#fff3cd;border:1px solid #f0d060;border-radius:6px;padding:6px 12px;font-size:12px;color:#856404;margin-bottom:8px;">✏️ 修正モード中　<button onclick="cancelEdit()" style="font-size:11px;padding:2px 8px;margin-left:8px;">キャンセル</button></div>
@@ -154,7 +154,7 @@ tr:last-child td{border-bottom:none;}
 </div>
 
 <!-- 出社予定表 -->
-<div class="card" id="office-schedule-card">
+<div class="card" id="office-schedule-card" style="display:none;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
     <div class="sec-ttl" style="margin-bottom:0;">🏢 出社予定表</div>
     
@@ -163,7 +163,7 @@ tr:last-child td{border-bottom:none;}
 </div>
 
 <!-- 3. 登録済みシフト一覧 -->
-<div class="card">
+<div class="card" style="display:none;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
     <div class="sec-ttl" style="margin-bottom:0;">📋 登録済みシフト一覧</div>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -199,10 +199,12 @@ tr:last-child td{border-bottom:none;}
   <div style="display:flex;gap:8px;flex-wrap:wrap;">
     <button onclick="downloadData()" style="font-size:12px;padding:5px 12px;background:#2c7be5;color:#fff;border:none;border-radius:6px;cursor:pointer;">📥 データをダウンロード</button>
     <button onclick="uploadData()" style="font-size:12px;padding:5px 12px;background:#fff;color:#2c7be5;border:1px solid #2c7be5;border-radius:6px;cursor:pointer;">📤 データをアップロード</button>
+    <button onclick="importNotionCSV()" style="font-size:12px;padding:5px 12px;background:#fff;color:#2c7be5;border:1px solid #2c7be5;border-radius:6px;cursor:pointer;">📋 NotionCSVを取り込む</button>
   </div>
+  <div id="notion-import-result" style="margin-top:8px;font-size:12px;display:none;"></div>
 </div>
 <!-- 4. メンバーマスタ -->
-<div class="card">
+<div class="card" style="display:none;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
     <div class="sec-ttl" style="margin-bottom:0;">👥 メンバーマスタ</div>
     <span style="font-size:12px;color:#888;" id="member-count"></span>
@@ -900,8 +902,7 @@ const OFFICE_MEMBERS=OFFICE_MEMBERS_FROM_JULY; // プルダウン用（全員）
 const INITIAL_OFFICE_CHANGES=[
   {thursdayDate:'2026-06-04',member:'小川鈴音',reason:'',substituteDate:''},
   {thursdayDate:'2026-06-04',member:'小池圭太',reason:'',substituteDate:''},
-  {thursdayDate:'2026-06-18',member:'小池圭太',reason:'',substituteDate:''},
-  {thursdayDate:'2026-07-02',member:'小池圭太',reason:'',substituteDate:''},
+
 
 ];
 
@@ -1205,7 +1206,7 @@ function renderSummary(){
         officeCnt=`<span style="color:#0C447C;font-weight:600;">${otherPeople.length}</span>`;
       }
     }
-    tr.innerHTML=`<td style="font-size:12px;">${isToday?'<span class=\'today-badge\'>今日</span>':''}${ds.slice(5)}</td><td style="font-size:12px;"><span class="${isWe?'dow-we':''}">${DOW_NAMES[dow]}</span></td><td style="text-align:right;">${cc}</td><td style="text-align:right;font-size:12px;">${weWork.length?`<span style="color:#3B6D11;">${weWork.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${furikae.length?`<span style="color:#633806;">${furikae.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${paid.length?`<span style="color:#72243E;">${paid.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${(halfpm.length+halfam.length)?`<span style="color:#3C3489;">${halfpm.length+halfam.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${officeCnt}</td><td style="font-size:12px;">${detail.join(' ')}</td>`;
+    tr.innerHTML=`<td style="font-size:12px;">${isToday?'<span class=\'today-badge\'>今日</span>':''}${ds.slice(5)}</td><td style="font-size:12px;"><span class="${isWe?'dow-we':''}">${DOW_NAMES[dow]}</span></td><td style="text-align:right;">${cc}</td><td style="text-align:right;font-size:12px;">${weWork.length?`<span style="color:#3B6D11;">${weWork.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${furikae.length?`<span style="color:#633806;">${furikae.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${paid.length?`<span style="color:#72243E;">${paid.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;">${(halfpm.length+halfam.length)?`<span style="color:#3C3489;">${halfpm.length+halfam.length}</span>`:'—'}</td><td style="text-align:right;font-size:12px;display:none;">${officeCnt}</td><td style="font-size:12px;">${detail.join(' ')}</td>`;
     tbody.appendChild(tr);
   }
   document.getElementById('sm-days').textContent=workDays+'日';
@@ -1315,6 +1316,74 @@ function uploadData(){
       }catch(err){alert('ファイルの読み込みに失敗しました。正しいJSONファイルを選んでください。');}
     };
     reader.readAsText(file);
+  };
+  input.click();
+}
+
+function importNotionCSV(){
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='.csv';
+  input.onchange=function(e){
+    const file=e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        const text=ev.target.result.replace(/^\uFEFF/,'');
+        const lines=text.split(/\r?\n/).filter(l=>l.trim());
+        if(lines.length<2){alert('データがありません');return;}
+        const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+        // カラムインデックスを特定
+        const userIdx=headers.findIndex(h=>h==='ユーザー'||h==='名前');
+        const dateIdx=headers.findIndex(h=>h==='日付');
+        const typeIdx=headers.findIndex(h=>h==='種別');
+        const noteIdx=headers.findIndex(h=>h==='備考');
+        if(userIdx<0||dateIdx<0||typeIdx<0){
+          alert('CSVの形式が正しくありません。\n必要なカラム：ユーザー、日付、種別');return;
+        }
+        // 日本語日付を変換「2026年4月10日」→「2026-04-10」
+        function parseJpDate(str){
+          if(!str)return '';
+          const m=str.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+          if(m)return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+          // すでにYYYY-MM-DD形式の場合
+          if(/^\d{4}-\d{2}-\d{2}$/.test(str))return str;
+          return '';
+        }
+        // 種別マッピング
+        const typeMap={'有給休暇':'paid','休暇':'paid','午前休':'halfam','午後休':'halfpm','振替休日':'furikae','土日出勤':'we','土日祝日出勤':'we','欠勤':'absent','時短':'halfpm'};
+        let added=0,skipped=0,errors=0;
+        const newShifts=[];
+        for(let i=1;i<lines.length;i++){
+          const cols=lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+          if(cols.length<3)continue;
+          const member=cols[userIdx]||'';
+          const dateRaw=cols[dateIdx]||'';
+          const typeRaw=cols[typeIdx]||'';
+          const note=noteIdx>=0?(cols[noteIdx]||''):'';
+          if(!member||!dateRaw||!typeRaw)continue;
+          const date=parseJpDate(dateRaw);
+          if(!date){errors++;continue;}
+          const type=typeMap[typeRaw]||typeRaw;
+          // 重複チェック
+          const dup=shifts.find(s=>s.date===date&&s.member===member&&s.type===type);
+          if(dup){skipped++;continue;}
+          newShifts.push({id:Date.now()+i,date,member,type,note,originDate:''});
+          added++;
+        }
+        if(newShifts.length>0){
+          shifts=[...shifts,...newShifts];
+          shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.member.localeCompare(b.member));
+          save();renderAll();
+        }
+        const resultEl=document.getElementById('notion-import-result');
+        resultEl.style.display='block';
+        resultEl.style.color=added>0?'#3B6D11':'#888';
+        resultEl.textContent=`取り込み完了：${added}件追加、${skipped}件重複スキップ${errors>0?'、'+errors+'件エラー':''}`;
+      }catch(err){alert('CSVの読み込みに失敗しました：'+err.message);}
+    };
+    reader.readAsText(file,'UTF-8');
   };
   input.click();
 }
