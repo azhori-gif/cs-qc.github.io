@@ -756,16 +756,17 @@ function renderOfficeSchedule(){
     const dateLabel=ds.replace(/-/g,'/');
     const row=document.createElement('div');
     row.style.cssText=`padding:10px 12px;border-radius:8px;margin-bottom:8px;background:${isToday?'#fff8f0':'#f9f9f9'};border:1px solid ${isToday?'#e63946':'#eee'};`;
-      // officeChangesをstatus別に分類
+      // officeChangesをstatus別に分類（出社メンバーのみ対象）
       const changeList2=officeChanges.filter(c=>c.thursdayDate===ds);
-      const remoteList=changeList2.filter(c=>c.status==='remote'||!c.status);
-      const offList=changeList2.filter(c=>c.status==='off');
+      const remoteList=changeList2.filter(c=>(c.status==='remote'||!c.status)&&officeMembersDs.includes(c.member));
+      const offList=changeList2.filter(c=>c.status==='off'&&officeMembersDs.includes(c.member));
       const changeAbsent2=changeList2.map(c=>c.member);
       const allAbsent2=[...new Set([...shiftAbsentMembers,...changeAbsent2])];
       const officeFinal=officeMembersDs.filter(m=>!allAbsent2.includes(m));
       const subEntries2=officeChanges.filter(c=>c.substituteDate===ds);
-      // シフト上の休み（officeChanges由来でないもの）
-      const shiftAbsentOnly=shiftAbsentMembers.filter(m=>!changeAbsent2.includes(m));
+      // シフト上の休み：出社メンバーかつofficeChanges未登録のもののみ
+      const offListMembers=offList.map(c=>c.member);
+      const shiftAbsentOnly=shiftAbsentMembers.filter(m=>officeMembersDs.includes(m)&&!changeAbsent2.includes(m));
       row.innerHTML=`
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         ${isToday?'<span class="today-badge">今日</span>':''}
