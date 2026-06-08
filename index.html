@@ -938,17 +938,17 @@ function renderSummary(){
     // 土日祝も常に表示
     const detail=[];
     if(weWork.length)detail.push(`<span class="badge b-we">${weWork.map(s=>s.member).join('・')}</span>`);
+    if(workIn.length)detail.push(`<span class="badge b-we">${workIn.map(s=>s.member).join('・')}　出勤</span>`);
+    if(fixedOffNames.length)detail.push(`<span class="badge b-fixoff">${fixedOffNames.join('・')}　固定休</span>`);
+    if(paid.length)detail.push(`<span class="badge b-paid">${paid.map(s=>s.member).join('・')}　有給</span>`);
+    if(halfpm.length)detail.push(`<span class="badge b-halfpm">${halfpm.map(s=>s.member).join('・')}　午後休</span>`);
+    if(halfam.length)detail.push(`<span class="badge b-halfam">${halfam.map(s=>s.member).join('・')}　午前休</span>`);
     furikae.forEach(s=>{
       let t=`<span class="badge b-furikae">${s.member}　振替</span>`;
       if(s.originDate){const od=DOW_NAMES[new Date(s.originDate).getDay()];t+=`<span class="tag-link">← ${s.originDate.slice(5)}(${od})出勤分</span>`;}
       detail.push(t);
     });
-    if(workIn.length)detail.push(`<span class="badge b-we">${workIn.map(s=>s.member).join('・')}　出勤</span>`);
-    if(paid.length)detail.push(`<span class="badge b-paid">${paid.map(s=>s.member).join('・')}　有給</span>`);
-    if(halfpm.length)detail.push(`<span class="badge b-halfpm">${halfpm.map(s=>s.member).join('・')}　午後休</span>`);
-    if(halfam.length)detail.push(`<span class="badge b-halfam">${halfam.map(s=>s.member).join('・')}　午前休</span>`);
     if(absent.length)detail.push(`<span class="badge b-absent">${absent.map(s=>s.member).join('・')}　当日欠勤</span>`);
-    if(fixedOffNames.length)detail.push(`<span class="badge b-fixoff">${fixedOffNames.join('・')}　固定休</span>`);
     if(isHoliday)detail.push('<span style="font-size:11px;color:#854f0b;">🏢 会社休日</span>');
     const alertMark=(!isHoliday&&!isWe)?(wc<=9?'🔴 ':wc===10?'🟡 ':''):'';
     const ccColor=(!isHoliday&&!isWe)?(wc<=9?'#c0392b':wc===10?'#e67e22':''):'';
