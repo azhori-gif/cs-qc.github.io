@@ -254,7 +254,7 @@ tr:last-child td{border-bottom:none;}
 
 <script>
 const DOW_NAMES=['日','月','火','水','木','金','土'];
-const LABELS={we:'土日祝日出勤',furikae:'振替休日',paid:'有給休暇',halfpm:'午後休',halfam:'午前休',absent:'欠勤','土日祝日出勤':'土日祝日出勤','振替休日':'振替休日','有給休暇':'有給休暇','午後休':'午後休','午前休':'午前休','欠勤':'欠勤','休暇':'有給休暇','時短':'時短'};
+const LABELS={we:'土日祝日出勤',furikae:'振替休日',paid:'有給休暇',halfpm:'午後休',halfam:'午前休',absent:'当日欠勤','土日祝日出勤':'土日祝日出勤','振替休日':'振替休日','有給休暇':'有給休暇','午後休':'午後休','午前休':'午前休','欠勤':'当日欠勤','休暇':'有給休暇','時短':'時短'};
 const BCLS={we:'b-we',furikae:'b-furikae',paid:'b-paid',halfpm:'b-halfpm',halfam:'b-halfam',absent:'b-absent','土日祝日出勤':'b-we','振替休日':'b-furikae','有給休暇':'b-paid','午後休':'b-halfpm','午前休':'b-halfam','欠勤':'b-absent','休暇':'b-paid','時短':'b-halfpm'};
 const STORAGE_KEY='shift-mgr-v4';
 // 古いバージョンのキャッシュを削除
@@ -1184,7 +1184,7 @@ function renderSummary(){
     if(paid.length)detail.push(`<span class="badge b-paid">${paid.map(s=>s.member).join('・')}　有給</span>`);
     if(halfpm.length)detail.push(`<span class="badge b-halfpm">${halfpm.map(s=>s.member).join('・')}　午後休</span>`);
     if(halfam.length)detail.push(`<span class="badge b-halfam">${halfam.map(s=>s.member).join('・')}　午前休</span>`);
-    if(absent.length)detail.push(`<span class="badge b-absent">${absent.map(s=>s.member).join('・')}　欠勤</span>`);
+    if(absent.length)detail.push(`<span class="badge b-absent">${absent.map(s=>s.member).join('・')}　当日欠勤</span>`);
     if(fixedOffNames.length)detail.push(`<span class="badge b-fixoff">${fixedOffNames.join('・')}　固定休</span>`);
     if(isHoliday)detail.push('<span style="font-size:11px;color:#854f0b;">🏢 会社休日</span>');
     const alertMark=(!isHoliday&&!isWe)?(wc<=9?'🔴 ':wc===10?'🟡 ':''):'';
