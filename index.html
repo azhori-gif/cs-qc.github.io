@@ -749,9 +749,9 @@ function renderOfficeSchedule(){
       const isToday=ds===todayStrThu;
     const dayShifts=shifts.filter(s=>s.date===ds);
     // シフト上の休み（有給・振替・欠勤）
-    const shiftAbsentMembers=dayShifts
+    const shiftAbsentMembers=[...new Set(dayShifts
       .filter(s=>['furikae','paid','absent'].includes(s.type)||(LABELS[s.type]&&['振替休日','有給休暇','欠勤'].includes(LABELS[s.type])))
-      .map(s=>s.member);
+      .map(s=>s.member))];
     const officeMembersDs=getOfficeMembersForDate(ds);
     const dateLabel=ds.replace(/-/g,'/');
     const row=document.createElement('div');
@@ -1189,6 +1189,11 @@ function importOfficeCSV(){
         otherOfficeEntries=[];
         otherDateMemos={};
         officeChanges=[];
+        // localStorageも明示的にクリア
+        localStorage.removeItem('officeChanges-v3');
+        localStorage.removeItem('otherDates-v2');
+        localStorage.removeItem('otherEntries-v2');
+        localStorage.removeItem('otherMemos-v1');
         let addedEntries=0,skipped=0,errors=0;
         for(let i=1;i<lines.length;i++){
           const cols=parseCSVLine(lines[i]);
