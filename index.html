@@ -254,7 +254,7 @@ tr:last-child td{border-bottom:none;}
 
 <script>
 const DOW_NAMES=['日','月','火','水','木','金','土'];
-const LABELS={we:'土日祝日出勤',furikae:'振替休日',paid:'有給休暇',halfpm:'午後休',halfam:'午前休',absent:'当日欠勤','土日祝日出勤':'土日祝日出勤','振替休日':'振替休日','有給休暇':'有給休暇','午後休':'午後休','午前休':'午前休','欠勤':'当日欠勤','休暇':'有給休暇','時短':'時短'};
+const LABELS={we:'土日祝日出勤',furikae:'振替休日',paid:'有給休暇',halfpm:'午後休',halfam:'午前休',absent:'当日欠勤',workin:'出勤','土日祝日出勤':'土日祝日出勤','振替休日':'振替休日','有給休暇':'有給休暇','午後休':'午後休','午前休':'午前休','欠勤':'当日欠勤','当日欠勤':'当日欠勤','休暇':'有給休暇','時短':'時短','出勤':'出勤'};
 const BCLS={we:'b-we',furikae:'b-furikae',paid:'b-paid',halfpm:'b-halfpm',halfam:'b-halfam',absent:'b-absent','土日祝日出勤':'b-we','振替休日':'b-furikae','有給休暇':'b-paid','午後休':'b-halfpm','午前休':'b-halfam','欠勤':'b-absent','休暇':'b-paid','時短':'b-halfpm'};
 const STORAGE_KEY='shift-mgr-v4';
 // 古いバージョンのキャッシュを削除
@@ -292,247 +292,6 @@ MEMBERS.find(m=>m.name==='野口和代').exceptions=[
 ];
 
 const INITIAL_SHIFTS=[
-  // 有給休暇
-  {date:'2026-06-08',member:'武末夏海',type:'paid',note:'',originDate:''},
-  {date:'2026-06-09',member:'堀川梓',type:'paid',note:'',originDate:''},
-  {date:'2026-06-15',member:'神愛莉沙',type:'paid',note:'',originDate:''},
-  {date:'2026-06-15',member:'佐久間愛みり',type:'paid',note:'',originDate:''},
-  {date:'2026-06-16',member:'堀川梓',type:'paid',note:'',originDate:''},
-  {date:'2026-06-19',member:'水野玲香',type:'paid',note:'',originDate:''},
-  {date:'2026-06-23',member:'堀川梓',type:'paid',note:'',originDate:''},
-  // 午後休
-  {date:'2026-06-05',member:'神愛莉沙',type:'halfpm',note:'',originDate:''},
-  {date:'2026-06-10',member:'松澤葵',type:'halfpm',note:'',originDate:''},
-  {date:'2026-06-12',member:'古城紗也香',type:'halfpm',note:'',originDate:''},
-  {date:'2026-06-17',member:'松澤葵',type:'halfpm',note:'6/27出勤分',originDate:'2026-06-27'},
-  // 午前休
-  {date:'2026-06-12',member:'松澤葵',type:'halfam',note:'6/14出勤分',originDate:'2026-06-14'},
-  // 振替休日
-  {date:'2026-06-02',member:'松澤葵',type:'furikae',note:'',originDate:'2026-06-07'},
-  {date:'2026-06-03',member:'古城紗也香',type:'furikae',note:'',originDate:'2026-06-06'},
-  {date:'2026-06-08',member:'水野玲香',type:'furikae',note:'',originDate:'2026-05-31'},
-  {date:'2026-06-15',member:'松澤葵',type:'furikae',note:'',originDate:'2026-06-21'},
-  {date:'2026-06-17',member:'古城紗也香',type:'furikae',note:'',originDate:'2026-06-20'},
-  {date:'2026-06-19',member:'堀川梓',type:'furikae',note:'',originDate:'2026-06-06'},
-  {date:'2026-06-23',member:'小川鈴音',type:'furikae',note:'',originDate:'2026-06-28'},
-  {date:'2026-06-24',member:'松澤葵',type:'furikae',note:'',originDate:''},
-  {date:'2026-06-26',member:'古城紗也香',type:'furikae',note:'',originDate:'2026-06-27'},
-  {date:'2026-06-29',member:'佐久間愛みり',type:'furikae',note:'',originDate:'2026-06-06'},
-  {date:'2026-06-30',member:'野口和代',type:'furikae',note:'',originDate:''},
-  // 土日祝日出勤（松澤）
-  {date:'2026-06-07',member:'松澤葵',type:'we',note:'',originDate:''},
-  {date:'2026-06-14',member:'松澤葵',type:'we',note:'',originDate:''},
-  {date:'2026-06-21',member:'松澤葵',type:'we',note:'',originDate:''},
-  {date:'2026-06-27',member:'松澤葵',type:'we',note:'',originDate:''},
-
-
-  // 7〜10月 追加シフト
-  // 堀川
-  {date:'2026-07-08',member:'堀川梓',type:'halfpm',note:'',originDate:''},
-  {date:'2026-07-24',member:'堀川梓',type:'paid',note:'',originDate:''},
-  // 神
-  {date:'2026-07-21',member:'神愛莉沙',type:'paid',note:'',originDate:''},
-  {date:'2026-08-06',member:'神愛莉沙',type:'paid',note:'',originDate:''},
-  {date:'2026-08-10',member:'神愛莉沙',type:'paid',note:'',originDate:''},
-  {date:'2026-08-12',member:'神愛莉沙',type:'paid',note:'',originDate:''},
-  {date:'2026-08-18',member:'神愛莉沙',type:'paid',note:'',originDate:''},
-  // 松澤
-  {date:'2026-08-10',member:'松澤葵',type:'paid',note:'',originDate:''},
-  {date:'2026-08-12',member:'松澤葵',type:'paid',note:'',originDate:''},
-  // 小川
-  {date:'2026-07-01',member:'小川鈴音',type:'halfpm',note:'月初のため',originDate:'2026-06-28'},
-  {date:'2026-07-28',member:'小川鈴音',type:'furikae',note:'',originDate:'2026-06-28'},
-  {date:'2026-10-19',member:'小川鈴音',type:'paid',note:'',originDate:''},
-  {date:'2026-10-20',member:'小川鈴音',type:'paid',note:'',originDate:''},
-  {date:'2026-10-21',member:'小川鈴音',type:'paid',note:'',originDate:''},
-  // 土日祝日出勤 追加分
-  {date:'2026-06-06',member:'堀川梓',type:'we',note:'',originDate:''},
-  {date:'2026-06-13',member:'高橋郁美',type:'we',note:'',originDate:''},
-  {date:'2026-06-21',member:'天野知佳',type:'we',note:'10:00-15:00',originDate:''},
-  {date:'2026-06-27',member:'野口和代',type:'we',note:'10:00-15:00',originDate:''},
-  {date:'2026-06-28',member:'小川鈴音',type:'we',note:'9:00-18:00',originDate:''},
-  {date:'2026-06-28',member:'佐久間愛みり',type:'we',note:'',originDate:''},
-  {date:'2026-06-28',member:'武末夏海',type:'we',note:'',originDate:''},
-  // 土日祝日出勤（古城）
-  {date:'2026-06-06',member:'古城紗也香',type:'we',note:'',originDate:''},
-  {date:'2026-06-20',member:'古城紗也香',type:'we',note:'',originDate:''},
-  {date:'2026-06-27',member:'古城紗也香',type:'we',note:'',originDate:''},
-
-  // 1〜5月データ
-  {date:'2026-01-04',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-01-04',member:'高橋郁美',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-01-04',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-01-04',member:'水野玲香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-01-11',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-01-12',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-01-13',member:'水野玲香',type:'振替休日',note:'1/4出勤の振替',originDate:''},
-  {date:'2026-01-16',member:'清水結穂',type:'休暇',note:'',originDate:''},
-  {date:'2026-01-16',member:'高橋郁美',type:'振替休日',note:'1/4出勤の振替',originDate:''},
-  {date:'2026-01-18',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-01-19',member:'松澤葵',type:'振替休日',note:'1/4出勤の振替',originDate:''},
-  {date:'2026-01-21',member:'古城紗也香',type:'休暇',note:'',originDate:''},
-  {date:'2026-01-22',member:'古城紗也香',type:'休暇',note:'',originDate:''},
-  {date:'2026-01-23',member:'松澤葵',type:'振替休日',note:'1/12出勤の振替',originDate:''},
-  {date:'2026-01-25',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-01-27',member:'堀川梓',type:'時短',note:'早退・14時まで稼働',originDate:''},
-  {date:'2026-01-27',member:'小川鈴音',type:'振替休日',note:'1/25日曜出勤の振替',originDate:''},
-  {date:'2026-01-28',member:'清水結穂',type:'休暇',note:'',originDate:''},
-  {date:'2026-01-29',member:'松澤葵',type:'振替休日',note:'1/18出勤の振替',originDate:''},
-  {date:'2026-02-05',member:'間野裕子',type:'午前休',note:'',originDate:''},
-  {date:'2026-02-05',member:'小川鈴音',type:'振替休日',note:'2/8日曜出勤の振替',originDate:''},
-  {date:'2026-02-05',member:'佐久間愛みり',type:'時短',note:'在宅・2/7土曜出勤の振替',originDate:''},
-  {date:'2026-02-07',member:'佐久間愛みり',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-02-08',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-02-09',member:'松澤葵',type:'休暇',note:'',originDate:''},
-  {date:'2026-02-10',member:'間野裕子',type:'休暇',note:'',originDate:''},
-  {date:'2026-02-18',member:'佐久間愛みり',type:'時短',note:'振替休日',originDate:''},
-  {date:'2026-02-19',member:'間野裕子',type:'午前休',note:'',originDate:''},
-  {date:'2026-02-22',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-02-23',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-02-25',member:'堀川梓',type:'振替休日',note:'2/28土日祝日出勤の振替',originDate:''},
-  {date:'2026-02-25',member:'松澤葵',type:'振替休日',note:'2/23出勤の振替',originDate:''},
-  {date:'2026-02-28',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-02-28',member:'高橋郁美',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-02-28',member:'水野玲香',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-03-01',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-01',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-03-02',member:'北堀麻衣',type:'休暇',note:'',originDate:''},
-  {date:'2026-03-02',member:'神愛莉沙',type:'休暇',note:'月初のお休み',originDate:''},
-  {date:'2026-03-04',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
-  {date:'2026-03-05',member:'間野裕子',type:'午前休',note:'',originDate:''},
-  {date:'2026-03-05',member:'松澤葵',type:'欠勤',note:'体調不良により急遽お休み',originDate:''},
-  {date:'2026-03-06',member:'間野裕子',type:'休暇',note:'',originDate:''},
-  {date:'2026-03-06',member:'松澤葵',type:'振替休日',note:'3/1出勤の振替',originDate:''},
-  {date:'2026-03-06',member:'古城紗也香',type:'休暇',note:'',originDate:''},
-  {date:'2026-03-08',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-08',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-10',member:'堀川梓',type:'休暇',note:'',originDate:''},
-  {date:'2026-03-11',member:'間野裕子',type:'欠勤',note:'発熱のため急遽お休み',originDate:''},
-  {date:'2026-03-11',member:'小川鈴音',type:'午後休',note:'3/8日曜出勤の振替（先取り）',originDate:''},
-  {date:'2026-03-13',member:'高橋郁美',type:'午後休',note:'3/13 14時以降休・2/28出勤の振替',originDate:''},
-  {date:'2026-03-13',member:'高橋郁美',type:'午後休',note:'2/28出勤の振替・14時まで稼働',originDate:''},
-  {date:'2026-03-13',member:'古城紗也香',type:'午後休',note:'15時まで稼働',originDate:''},
-  {date:'2026-03-14',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-16',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
-  {date:'2026-03-17',member:'小川鈴音',type:'午後休',note:'3/8日曜出勤の振替（先取り）',originDate:''},
-  {date:'2026-03-19',member:'野口和代',type:'休暇',note:'',originDate:''},
-  {date:'2026-03-19',member:'神愛莉沙',type:'時短',note:'私用のため15時まで稼働（在宅）',originDate:''},
-  {date:'2026-03-20',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-21',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-22',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-23',member:'堀川梓',type:'振替休日',note:'3/21土曜出勤の振替',originDate:''},
-  {date:'2026-03-23',member:'小川鈴音',type:'午後休',note:'3/8日曜出勤の振替（先取り）',originDate:''},
-  {date:'2026-03-23',member:'古城紗也香',type:'振替休日',note:'3/14出勤の振替',originDate:''},
-  {date:'2026-03-25',member:'堀川梓',type:'休暇',note:'',originDate:''},
-  {date:'2026-03-25',member:'水野玲香',type:'時短',note:'12時から出勤',originDate:''},
-  {date:'2026-03-27',member:'松澤葵',type:'振替休日',note:'振替',originDate:''},
-  {date:'2026-03-28',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-28',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-29',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-03-29',member:'水野玲香',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-03-30',member:'古城紗也香',type:'振替休日',note:'3/28出勤の振替',originDate:''},
-  {date:'2026-04-03',member:'松澤葵',type:'振替休日',note:'4/4土曜出勤の振替',originDate:''},
-  {date:'2026-04-04',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-04',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-05',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-04-05',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-06',member:'松澤葵',type:'時短',note:'16時まで勤務',originDate:''},
-  {date:'2026-04-06',member:'古城紗也香',type:'振替休日',note:'4/4出勤の振替',originDate:''},
-  {date:'2026-04-06',member:'神愛莉沙',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-07',member:'古城紗也香',type:'振替休日',note:'4/5出勤の振替',originDate:''},
-  {date:'2026-04-08',member:'間野裕子',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-08',member:'小川鈴音',type:'午後休',note:'4/26日曜出勤の振替（先取り）',originDate:''},
-  {date:'2026-04-09',member:'堀川梓',type:'休暇',note:'4/8水曜出社で振替',originDate:''},
-  {date:'2026-04-09',member:'間野裕子',type:'午後休',note:'',originDate:''},
-  {date:'2026-04-10',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-10',member:'松澤葵',type:'振替休日',note:'4/12日曜出勤の振替',originDate:''},
-  {date:'2026-04-10',member:'野口和代',type:'振替休日',note:'3/31出勤分の振替',originDate:''},
-  {date:'2026-04-11',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-12',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-13',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-14',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-15',member:'堀川梓',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-15',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-16',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-17',member:'堀川梓',type:'振替休日',note:'4/18土曜出勤の振替',originDate:''},
-  {date:'2026-04-17',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-17',member:'松澤葵',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-17',member:'古城紗也香',type:'振替休日',note:'4/11出勤の振替',originDate:''},
-  {date:'2026-04-18',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-18',member:'清水結穂',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-19',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-04-19',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-20',member:'清水結穂',type:'振替休日',note:'4/18土曜出勤の振替',originDate:''},
-  {date:'2026-04-20',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-20',member:'野口和代',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-20',member:'古城紗也香',type:'振替休日',note:'4/19出勤の振替',originDate:''},
-  {date:'2026-04-21',member:'堀川梓',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-21',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-22',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-23',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-24',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-24',member:'水野玲香',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-24',member:'古城紗也香',type:'振替休日',note:'4/25出勤の振替',originDate:''},
-  {date:'2026-04-24',member:'神愛莉沙',type:'休暇',note:'',originDate:''},
-  {date:'2026-04-25',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-26',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-04-27',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-28',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-28',member:'古城紗也香',type:'午後休',note:'',originDate:''},
-  {date:'2026-04-28',member:'神愛莉沙',type:'時短',note:'14時まで稼働（在宅）',originDate:''},
-  {date:'2026-04-29',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-30',member:'間野裕子',type:'休暇',note:'産休前',originDate:''},
-  {date:'2026-04-30',member:'松澤葵',type:'午後休',note:'',originDate:''},
-  {date:'2026-04-30',member:'古城紗也香',type:'休暇',note:'',originDate:''},
-  {date:'2026-05-01',member:'天野知佳',type:'休暇',note:'月初のお休み',originDate:''},
-  {date:'2026-05-01',member:'水野玲香',type:'休暇',note:'月初のお休み',originDate:''},
-  {date:'2026-05-01',member:'古城紗也香',type:'休暇',note:'月初のお休み',originDate:''},
-  {date:'2026-05-01',member:'神愛莉沙',type:'休暇',note:'月初のお休み',originDate:''},
-  {date:'2026-05-02',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-02',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-03',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-04',member:'野口和代',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-05',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-05-05',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-06',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-07',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
-  {date:'2026-05-07',member:'野口和代',type:'振替休日',note:'5/4出勤の振替',originDate:''},
-  {date:'2026-05-07',member:'神愛莉沙',type:'休暇',note:'',originDate:''},
-  {date:'2026-05-08',member:'古城紗也香',type:'振替休日',note:'5/5出勤の振替',originDate:''},
-  {date:'2026-05-09',member:'堀川梓',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-10',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-10',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-05-11',member:'松澤葵',type:'振替休日',note:'5/10日曜出勤の振替',originDate:''},
-  {date:'2026-05-12',member:'堀川梓',type:'休暇',note:'',originDate:''},
-  {date:'2026-05-13',member:'小川鈴音',type:'午後休',note:'5/2土曜出勤の振替',originDate:''},
-  {date:'2026-05-13',member:'古城紗也香',type:'振替休日',note:'5/6出勤の振替',originDate:''},
-  {date:'2026-05-15',member:'堀川梓',type:'振替休日',note:'5/9土曜出勤の振替',originDate:''},
-  {date:'2026-05-15',member:'松澤葵',type:'振替休日',note:'振替',originDate:''},
-  {date:'2026-05-15',member:'野口和代',type:'休暇',note:'',originDate:''},
-  {date:'2026-05-16',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-17',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-17',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-05-18',member:'古城紗也香',type:'振替休日',note:'5/16出勤の振替',originDate:''},
-  {date:'2026-05-20',member:'小川鈴音',type:'振替休日',note:'5/24日曜出勤の振替（先取り）',originDate:''},
-  {date:'2026-05-22',member:'古城紗也香',type:'振替休日',note:'5/23出勤の振替（先取り）',originDate:''},
-  {date:'2026-05-23',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-24',member:'小川鈴音',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-24',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-05-25',member:'北堀麻衣',type:'休暇',note:'通院',originDate:''},
-  {date:'2026-05-25',member:'小川鈴音',type:'午後休',note:'5/24日曜出勤の振替',originDate:''},
-  {date:'2026-05-25',member:'松澤葵',type:'午後休',note:'振替休日',originDate:''},
-  {date:'2026-05-26',member:'堀川梓',type:'休暇',note:'',originDate:''},
-  {date:'2026-05-26',member:'松澤葵',type:'振替休日',note:'振替',originDate:''},
-  {date:'2026-05-27',member:'水野玲香',type:'振替休日',note:'5/30出勤の振替（先取り）',originDate:''},
-  {date:'2026-05-27',member:'古城紗也香',type:'時短',note:'振替出社17時まで',originDate:''},
-  {date:'2026-05-29',member:'古城紗也香',type:'振替休日',note:'5/30出勤の振替（先取り）',originDate:''},
-  {date:'2026-05-30',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-30',member:'水野玲香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-30',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-31',member:'松澤葵',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-31',member:'天野知佳',type:'土日祝日出勤',note:'振替なし',originDate:''},
-  {date:'2026-05-31',member:'水野玲香',type:'土日祝日出勤',note:'振替あり',originDate:''},
-  {date:'2026-05-31',member:'古城紗也香',type:'土日祝日出勤',note:'振替あり',originDate:''},
 ];
 
 let shifts=[];
@@ -1161,14 +920,17 @@ function renderSummary(){
     const halfpm=dayShifts.filter(s=>s.type==='halfpm');
     const halfam=dayShifts.filter(s=>s.type==='halfam');
     const absent=dayShifts.filter(s=>s.type==='absent');
+    const workIn=dayShifts.filter(s=>s.type==='workin'); // 固定休日に出勤
     const absentByShift=[...furikae,...paid,...absent].map(s=>s.member);
+    const workInMembers=workIn.map(s=>s.member); // 出勤登録があるメンバー
     let wc=0;const fixedOffNames=[];
     if(isWe){wc=weWork.length;weDays++;}
     else{
       active.forEach(member=>{
         if(absentByShift.includes(member.name))return;
         const offDays=getOffDaysForDate(member,ds);
-        if(offDays.includes(dow)){fixedOffNames.push(member.name);return;}
+        // 固定休日でも「出勤」登録があれば出勤扱い
+        if(offDays.includes(dow)&&!workInMembers.includes(member.name)){fixedOffNames.push(member.name);return;}
         wc++;
       });
       workDays++;
@@ -1181,6 +943,7 @@ function renderSummary(){
       if(s.originDate){const od=DOW_NAMES[new Date(s.originDate).getDay()];t+=`<span class="tag-link">← ${s.originDate.slice(5)}(${od})出勤分</span>`;}
       detail.push(t);
     });
+    if(workIn.length)detail.push(`<span class="badge b-we">${workIn.map(s=>s.member).join('・')}　出勤</span>`);
     if(paid.length)detail.push(`<span class="badge b-paid">${paid.map(s=>s.member).join('・')}　有給</span>`);
     if(halfpm.length)detail.push(`<span class="badge b-halfpm">${halfpm.map(s=>s.member).join('・')}　午後休</span>`);
     if(halfam.length)detail.push(`<span class="badge b-halfam">${halfam.map(s=>s.member).join('・')}　午前休</span>`);
@@ -1358,7 +1121,7 @@ function importNotionCSV(){
         // Notion→HTML名前変換マッピング
         const nameMap={'梓 堀川':'堀川梓','武末 夏海':'武末夏海','mai.kitabori@paytner.co.jp':'北堀麻衣'};
         // 種別マッピング
-        const typeMap={'有給休暇':'paid','休暇':'paid','午前休':'halfam','午後休':'halfpm','振替休日':'furikae','土日出勤':'we','土日祝日出勤':'we','欠勤':'absent','当日欠勤':'absent','時短':'halfpm'};
+        const typeMap={'有給休暇':'paid','休暇':'paid','午前休':'halfam','午後休':'halfpm','振替休日':'furikae','土日出勤':'we','土日祝日出勤':'we','欠勤':'absent','当日欠勤':'absent','時短':'halfpm','出勤':'workin'};
         let added=0,skipped=0,errors=0;
         const newShifts=[];
         for(let i=1;i<lines.length;i++){
