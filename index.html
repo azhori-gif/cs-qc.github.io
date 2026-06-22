@@ -260,7 +260,31 @@ const DOW_NAMES=['日','月','火','水','木','金','土'];
 const LABELS={we:'土日祝日出勤',furikae:'振替休日',paid:'有給休暇',halfpm:'午後休',halfam:'午前休',absent:'当日欠勤',workin:'出勤','土日祝日出勤':'土日祝日出勤','振替休日':'振替休日','有給休暇':'有給休暇','午後休':'午後休','午前休':'午前休','欠勤':'当日欠勤','当日欠勤':'当日欠勤','休暇':'有給休暇','時短':'時短','出勤':'出勤'};
 const BCLS={we:'b-we',furikae:'b-furikae',paid:'b-paid',halfpm:'b-halfpm',halfam:'b-halfam',absent:'b-absent','土日祝日出勤':'b-we','振替休日':'b-furikae','有給休暇':'b-paid','午後休':'b-halfpm','午前休':'b-halfam','欠勤':'b-absent','休暇':'b-paid','時短':'b-halfpm'};
 
-const COMPANY_HOLIDAYS=['2026-08-13','2026-08-14'];
+const COMPANY_HOLIDAYS=[
+  '2026-07-20','2026-08-11','2026-08-13','2026-08-14',
+  '2026-09-21','2026-09-22','2026-09-23',
+  '2026-10-12',
+  '2026-11-03','2026-11-23',
+  '2026-12-30','2026-12-31',
+  '2027-01-01','2027-01-02','2027-01-03'
+];
+const HOLIDAY_NAMES={
+  '2026-07-20':'海の日',
+  '2026-08-11':'山の日',
+  '2026-08-13':'会社休',
+  '2026-08-14':'会社休',
+  '2026-09-21':'敬老の日',
+  '2026-09-22':'国民の休日',
+  '2026-09-23':'秋分の日',
+  '2026-10-12':'スポーツの日',
+  '2026-11-03':'文化の日',
+  '2026-11-23':'勤労感謝の日',
+  '2026-12-30':'年末年始休',
+  '2026-12-31':'年末年始休',
+  '2027-01-01':'元日',
+  '2027-01-02':'年始休',
+  '2027-01-03':'年始休',
+};
 
 let MEMBERS=[
   {name:'堀川梓',start:null,fixedOff:[],exceptions:[]},
@@ -269,7 +293,7 @@ let MEMBERS=[
   {name:'小川鈴音',start:null,fixedOff:[],exceptions:[]},
   {name:'佐久間愛みり',start:null,fixedOff:[],exceptions:[]},
   {name:'松澤葵',start:null,fixedOff:[],exceptions:[]},
-  {name:'野口和代',start:null,fixedOff:[2,3],exceptions:[
+  {name:'野口和代',start:null,fixedOff:[],exceptions:[
     {week:'2026-06-22',offDays:[]},
     {week:'2026-06-29',offDays:[]}
   ]},
@@ -903,10 +927,11 @@ function renderSummary(){
     if(halfam.length)detail.push(`<span class="badge b-halfam">${halfam.map(s=>s.member).join('・')}　午前休</span>`);
     if(halfpm.length)detail.push(`<span class="badge b-halfpm">${halfpm.map(s=>s.member+'　'+(s.note||'午後休')).join('・')}</span>`);
     if(absent.length)detail.push(`<span class="badge b-absent">${absent.map(s=>s.member).join('・')}　当日欠勤</span>`);
-    if(isHoliday)detail.push('<span style="font-size:11px;color:#854f0b;">🏢 会社休日</span>');
+    if(isHoliday)detail.push('<span style="font-size:11px;color:#854f0b;">🎌 '+HOLIDAY_NAMES[ds]+'</span>');
     const alertMark=(!isHoliday&&!isWe)?(wc<=9?'🔴 ':wc===10?'🟡 ':''):'';
     const ccColor=(!isHoliday&&!isWe)?(wc<=9?'#c0392b':wc===10?'#e67e22':''):'';
-    const cc=isHoliday?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:'<span style="color:#bbb;">会社休</span>'):isWe?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:'<span style="color:#bbb;">—</span>'):`<span style="font-weight:600;${ccColor?'color:'+ccColor+';':''}">${alertMark}${wc}人</span>`;
+    const holidayLabel=HOLIDAY_NAMES[ds]||'会社休';
+    const cc=isHoliday?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:`<span style="color:#bbb;">${holidayLabel}</span>`):isWe?(weWork.length?`<span style="color:#3B6D11;font-weight:600;">${weWork.length}人</span>`:'<span style="color:#bbb;">—</span>'):`<span style="font-weight:600;${ccColor?'color:'+ccColor+';':''}">${alertMark}${wc}人</span>`;
     const tr=document.createElement('tr');
     const isToday=ds===new Date().toISOString().slice(0,10);
     const todayStr=new Date().toISOString().slice(0,10);
