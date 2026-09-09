@@ -331,7 +331,13 @@ function getMondayOfWeek(dateStr){
 function getOffDaysForDate(member,ds){
   const monday=getMondayOfWeek(ds);
   const exc=member.exceptions&&member.exceptions.find(e=>e.week===monday);
-  return exc?exc.offDays:member.fixedOff||[];
+  let offDays=exc?exc.offDays:member.fixedOff||[];
+  // 水野さん9/16以降の水曜固定休
+  if(member.name==='水野玲香'&&ds>='2026-09-16'){
+    const dow=new Date(ds).getDay();
+    if(dow===3&&!offDays.includes(3))offDays=[...offDays,3];
+  }
+  return offDays;
 }
 function activeMembersForDate(ds){return MEMBERS.filter(m=>m.note!=='育休中'&&(!m.start||ds>=m.start));}
 
@@ -666,6 +672,14 @@ function getOfficeMembersForDate(ds){
   if(ds<'2026-01-15') members=members.filter(m=>m!=='神愛莉沙');
   if(ds<'2026-02-12'||ds>'2026-05-14') members=members.filter(m=>m!=='武末夏海');
   return members;
+}
+
+// 水野さん9/16以降の水曜固定休判定
+const MIZUNO_FIXED_OFF_FROM='2026-09-16';
+function isMizunoFixedOff(ds){
+  if(ds<MIZUNO_FIXED_OFF_FROM)return false;
+  const dow=new Date(ds).getDay();
+  return dow===3; // 水曜
 }
 const OFFICE_MEMBERS=OFFICE_MEMBERS_FROM_JULY;
 
