@@ -335,7 +335,7 @@ function getOffDaysForDate(member,ds){
   // 水野さん9/16以降の水曜固定休（例外日除く）
   if(member.name==='水野玲香'&&ds>='2026-09-16'){
     const dow=new Date(ds).getDay();
-    const exceptions=['2026-09-30'];
+    const exceptions=['2026-09-30','2026-10-28'];
     if(dow===3&&!offDays.includes(3)&&!exceptions.includes(ds))offDays=[...offDays,3];
   }
   return offDays;
